@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4주 피트니스 트래커</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+
+  <header class="header">
+    <div class="header-content">
+      <h1><i class="fas fa-fire"></i> 바프 피트니스</h1>
+      <p class="header-sub" id="header-countdown">목표를 설정하고 변화를 시작하세요</p>
+    </div>
+  </header>
+
+  <nav class="nav-tabs">
+    <button class="tab-btn active" data-tab="goal">
+      <i class="fas fa-bullseye"></i><span>목표설정</span>
+    </button>
+    <button class="tab-btn" data-tab="plan">
+      <i class="fas fa-dumbbell"></i><span>운동플랜</span>
+    </button>
+    <button class="tab-btn" data-tab="today">
+      <i class="fas fa-pen-to-square"></i><span>오늘기록</span>
+    </button>
+    <button class="tab-btn" data-tab="running">
+      <i class="fas fa-person-running"></i><span>러닝대회</span>
+    </button>
+    <button class="tab-btn" data-tab="progress">
+      <i class="fas fa-chart-line"></i><span>진행현황</span>
+    </button>
+  </nav>
+
+  <!-- ===== TAB 1: 목표설정 ===== -->
+  <section id="goal" class="tab-content active">
+    <div class="section-title"><i class="fas fa-bullseye"></i> 프로필 & 목표 설정</div>
+
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-venus-mars"></i> 성별</h3>
+      <div class="choice-grid cols-2">
+        <div class="choice-card" data-group="gender" data-value="female">
+          <i class="fas fa-venus"></i><span>여성</span>
+        </div>
+        <div class="choice-card" data-group="gender" data-value="male">
+          <i class="fas fa-mars"></i><span>남성</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-user"></i> 기본 정보</h3>
+      <div class="input-row">
+        <div class="input-group">
+          <label>나이</label>
+          <input type="number" id="inp-age" placeholder="28" min="15" max="80">
+          <span class="input-unit">세</span>
+        </div>
+        <div class="input-group">
+          <label>키</label>
+          <input type="number" id="inp-height" placeholder="165" min="140" max="210">
+          <span class="input-unit">cm</span>
+        </div>
+        <div class="input-group">
+          <label>현재 체중</label>
+          <input type="number" id="inp-weight" placeholder="58.5" step="0.1" min="30" max="200">
+          <span class="input-unit">kg</span>
+        </div>
+        <div class="input-group">
+          <label>현재 체지방률</label>
+          <input type="number" id="inp-bodyfat" placeholder="25" min="5" max="60">
+          <span class="input-unit">%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-leaf"></i> 체질 / 신체 유형</h3>
+      <div class="choice-grid cols-2">
+        <div class="choice-card" data-group="bodyType" data-value="ecto">
+          <i class="fas fa-feather"></i><span>마른 체형</span><small>살이 잘 안 찌는 편</small>
+        </div>
+        <div class="choice-card" data-group="bodyType" data-value="meso">
+          <i class="fas fa-person"></i><span>보통 체형</span><small>평균적인 체형</small>
+        </div>
+        <div class="choice-card" data-group="bodyType" data-value="endo">
+          <i class="fas fa-circle"></i><span>비만 체형</span><small>살이 잘 찌는 편</small>
+        </div>
+        <div class="choice-card" data-group="bodyType" data-value="athlete">
+          <i class="fas fa-trophy"></i><span>운동 경험자</span><small>꾸준히 운동해온 편</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-flag-checkered"></i> 4주 목표</h3>
+      <div class="input-row">
+        <div class="input-group">
+          <label>목표 체중</label>
+          <input type="number" id="inp-target-weight" placeholder="55.0" step="0.1">
+          <span class="input-unit">kg</span>
+        </div>
+        <div class="input-group">
+          <label>목표 체지방률</label>
+          <input type="number" id="inp-target-bodyfat" placeholder="22">
+          <span class="input-unit">%</span>
+        </div>
+        <div class="input-group">
+          <label>시작일</label>
+          <input type="date" id="inp-start-date">
+        </div>
+      </div>
+      <div id="goal-preview" class="goal-preview" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-dumbbell"></i> 주간 근력 운동</h3>
+      <div class="plan-row">
+        <label>주 몇 회?</label>
+        <div class="day-picker" id="strength-days">
+          <button class="day-btn" data-val="1">1회</button>
+          <button class="day-btn" data-val="2">2회</button>
+          <button class="day-btn" data-val="3">3회</button>
+          <button class="day-btn" data-val="4">4회</button>
+          <button class="day-btn" data-val="5">5회</button>
+          <button class="day-btn" data-val="6">6회</button>
+          <button class="day-btn" data-val="7">7회</button>
+        </div>
+      </div>
+      <div class="plan-row">
+        <label>회당 시간?</label>
+        <div class="time-picker" id="strength-min">
+          <button class="time-btn" data-val="30">30분</button>
+          <button class="time-btn" data-val="45">45분</button>
+          <button class="time-btn" data-val="60">60분</button>
+          <button class="time-btn" data-val="90">90분</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-person-running"></i> 주간 유산소 운동</h3>
+      <div class="plan-row">
+        <label>주 몇 회?</label>
+        <div class="day-picker" id="cardio-days">
+          <button class="day-btn" data-val="1">1회</button>
+          <button class="day-btn" data-val="2">2회</button>
+          <button class="day-btn" data-val="3">3회</button>
+          <button class="day-btn" data-val="4">4회</button>
+          <button class="day-btn" data-val="5">5회</button>
+          <button class="day-btn" data-val="6">6회</button>
+          <button class="day-btn" data-val="7">7회</button>
+        </div>
+      </div>
+      <div class="plan-row">
+        <label>회당 시간?</label>
+        <div class="time-picker" id="cardio-min">
+          <button class="time-btn" data-val="20">20분</button>
+          <button class="time-btn" data-val="30">30분</button>
+          <button class="time-btn" data-val="45">45분</button>
+          <button class="time-btn" data-val="60">60분</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-generate" id="btn-save-goal">
+      <i class="fas fa-wand-magic-sparkles"></i> 맞춤 운동+식단 플랜 생성하기
+    </button>
+  </section>
+
+  <!-- ===== TAB 2: 운동플랜 ===== -->
+  <section id="plan" class="tab-content">
+    <div class="section-title"><i class="fas fa-dumbbell"></i> 운동 플랜</div>
+
+    <div id="plan-empty" class="empty-state">
+      <i class="fas fa-wand-magic-sparkles"></i>
+      <p>먼저 <strong>목표설정</strong> 탭에서<br>프로필과 목표를 저장하세요!</p>
+    </div>
+
+    <div id="plan-content" style="display:none;">
+      <!-- 칼로리 카드 -->
+      <div class="card calorie-summary-card">
+        <h3 class="card-title"><i class="fas fa-fire-flame-curved"></i> 일일 칼로리 목표</h3>
+        <div class="calorie-boxes">
+          <div class="cal-box">
+            <div class="cal-number" id="plan-bmr">-</div>
+            <div class="cal-label">기초대사량</div>
+          </div>
+          <div class="cal-box accent">
+            <div class="cal-number" id="plan-target-cal">-</div>
+            <div class="cal-label">목표 섭취량</div>
+          </div>
+          <div class="cal-box">
+            <div class="cal-number" id="plan-protein">-</div>
+            <div class="cal-label">단백질 목표 g</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 요일 선택 -->
+      <div class="week-day-grid" id="week-day-grid"></div>
+
+      <!-- 오늘 운동 상세 -->
+      <div id="day-workout-view"></div>
+
+      <!-- 식단 플랜 -->
+      <div class="card" style="margin-top:16px;">
+        <h3 class="card-title"><i class="fas fa-utensils"></i> 추천 식단 플랜</h3>
+        <div id="diet-plan"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TAB 3: 오늘기록 ===== -->
+  <section id="today" class="tab-content">
+    <div class="section-title">
+      <i class="fas fa-pen-to-square"></i> 오늘의 기록
+      <span class="today-date" id="today-date-label"></span>
+    </div>
+
+    <div class="card condition-card">
+      <h3 class="card-title"><i class="fas fa-heart-pulse"></i> 오늘 컨디션</h3>
+      <div class="condition-slider-wrap">
+        <div class="condition-emojis"><span>😫</span><span>😕</span><span>😐</span><span>😊</span><span>🔥</span></div>
+        <input type="range" id="condition-slider" min="1" max="5" value="3" class="condition-slider">
+        <div class="condition-labels"><span>최악</span><span>별로</span><span>보통</span><span>좋음</span><span>최고</span></div>
+      </div>
+      <div id="condition-display" class="condition-display"></div>
+      <div class="symptoms-section">
+        <label class="symptoms-label">오늘 상태 (해당 항목 선택)</label>
+        <div class="symptoms-grid">
+          <label class="symptom-check"><input type="checkbox" value="피로"><span>피로</span></label>
+          <label class="symptom-check"><input type="checkbox" value="근육통"><span>근육통</span></label>
+          <label class="symptom-check"><input type="checkbox" value="두통"><span>두통</span></label>
+          <label class="symptom-check"><input type="checkbox" value="수면부족"><span>수면부족</span></label>
+          <label class="symptom-check"><input type="checkbox" value="스트레스"><span>스트레스</span></label>
+          <label class="symptom-check"><input type="checkbox" value="관절통증"><span>관절통증</span></label>
+          <label class="symptom-check"><input type="checkbox" value="감기기운"><span>감기기운</span></label>
+          <label class="symptom-check"><input type="checkbox" value="의욕저하"><span>의욕저하</span></label>
+        </div>
+      </div>
+      <div id="motivation-box" class="motivation-box" style="display:none;"></div>
+      <div id="advice-box" class="advice-box"></div>
+      <button class="btn-save-condition" id="btn-save-condition">
+        <i class="fas fa-save"></i> 컨디션 저장
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-header-row">
+        <h3 class="card-title"><i class="fas fa-dumbbell"></i> 오늘의 운동</h3>
+        <button class="btn-add" id="btn-add-workout"><i class="fas fa-plus"></i> 추가</button>
+      </div>
+      <div id="workout-form-today" class="inline-form" style="display:none;">
+        <select id="wt-type">
+          <option value="">운동 종류</option>
+          <option value="근력운동">근력운동</option>
+          <option value="러닝">러닝</option>
+          <option value="사이클">사이클</option>
+          <option value="수영">수영</option>
+          <option value="요가/필라테스">요가/필라테스</option>
+          <option value="걷기">걷기</option>
+          <option value="기타">기타</option>
+        </select>
+        <input type="number" id="wt-duration" placeholder="시간(분)" min="1">
+        <input type="number" id="wt-calories" placeholder="소모 칼로리" min="1">
+        <textarea id="wt-notes" placeholder="메모 (선택사항)"></textarea>
+        <div class="form-btns">
+          <button class="btn-sm-save" id="btn-save-workout">저장</button>
+          <button class="btn-sm-cancel" id="btn-cancel-workout">취소</button>
+        </div>
+      </div>
+      <div id="workout-list-today" class="record-list"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header-row">
+        <h3 class="card-title"><i class="fas fa-utensils"></i> 오늘의 식사</h3>
+        <button class="btn-add" id="btn-add-meal"><i class="fas fa-plus"></i> 추가</button>
+      </div>
+      <div id="meal-form-today" class="inline-form" style="display:none;">
+        <select id="ml-type">
+          <option value="">식사 종류</option>
+          <option value="아침">아침</option>
+          <option value="점심">점심</option>
+          <option value="저녁">저녁</option>
+          <option value="간식">간식</option>
+        </select>
+        <input type="text" id="ml-name" placeholder="음식 이름">
+        <input type="number" id="ml-calories" placeholder="칼로리 (kcal)" min="1">
+        <textarea id="ml-notes" placeholder="메모 (선택사항)"></textarea>
+        <div class="form-btns">
+          <button class="btn-sm-save" id="btn-save-meal">저장</button>
+          <button class="btn-sm-cancel" id="btn-cancel-meal">취소</button>
+        </div>
+      </div>
+      <div id="meal-list-today" class="record-list"></div>
+      <div id="calorie-today-summary" class="calorie-today-summary"></div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-sticky-note"></i> 오늘의 메모</h3>
+      <textarea id="today-memo" placeholder="오늘 느낀 점, 특이사항 등 자유롭게 기록하세요..." rows="4"
+        style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;color:#fff;font-family:inherit;font-size:13px;resize:vertical;"></textarea>
+      <button class="btn-sm-save" id="btn-save-memo" style="margin-top:8px;">
+        <i class="fas fa-save"></i> 메모 저장
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== TAB 4: 러닝대회 ===== -->
+  <section id="running" class="tab-content">
+    <div class="section-title"><i class="fas fa-person-running"></i> 2026 러닝 대회</div>
+    <p class="running-desc">⚡ 클릭하면 공식 사이트로 이동합니다. 일정은 변동될 수 있으니 공식 홈페이지에서 확인하세요.</p>
+    <div class="running-filter">
+      <button class="filter-btn active" data-month="all">전체</button>
+      <button class="filter-btn" data-month="3">3월</button>
+      <button class="filter-btn" data-month="4">4월</button>
+      <button class="filter-btn" data-month="5">5월</button>
+      <button class="filter-btn" data-month="6">6월</button>
+      <button class="filter-btn" data-month="9">9월</button>
+      <button class="filter-btn" data-month="10">10월</button>
+      <button class="filter-btn" data-month="11">11월</button>
+      <button class="filter-btn" data-month="12">12월</button>
+    </div>
+    <div id="running-events-list" class="running-events-grid"></div>
+  </section>
+
+  <!-- ===== TAB 5: 진행현황 ===== -->
+  <section id="progress" class="tab-content">
+    <div class="section-title"><i class="fas fa-chart-line"></i> 진행 현황</div>
+
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-road"></i> 4주 목표 진행률</h3>
+      <div id="four-week-progress"><div class="empty-state">목표설정 탭에서 설정 후 확인하세요.</div></div>
+    </div>
+
+    <div class="sub-tabs">
+      <button class="sub-tab-btn active" data-subtab="monthly">한달 목표</button>
+      <button class="sub-tab-btn" data-subtab="weekly">주간 목표</button>
+      <button class="sub-tab-btn" data-subtab="daily">하루 목표</button>
+    </div>
+
+    <div id="subtab-monthly" class="sub-tab-content card">
+      <div class="card-header-row">
+        <h3 class="card-title"><i class="fas fa-calendar-days"></i> 이달의 목표</h3>
+        <button class="btn-add" id="btn-add-monthly"><i class="fas fa-plus"></i> 추가</button>
+      </div>
+      <div id="monthly-form" class="inline-form" style="display:none;">
+        <input type="text" id="monthly-goal-text" placeholder="이번 달 목표 입력">
+        <div class="form-btns">
+          <button class="btn-sm-save" id="btn-save-monthly">저장</button>
+          <button class="btn-sm-cancel" id="btn-cancel-monthly">취소</button>
+        </div>
+      </div>
+      <div id="monthly-goals-list" class="goals-list"></div>
+    </div>
+
+    <div id="subtab-weekly" class="sub-tab-content card" style="display:none;">
+      <div class="card-header-row">
+        <h3 class="card-title"><i class="fas fa-calendar-week"></i> 이번 주 목표</h3>
+        <button class="btn-add" id="btn-add-weekly"><i class="fas fa-plus"></i> 추가</button>
+      </div>
+      <div id="weekly-form" class="inline-form" style="display:none;">
+        <input type="text" id="weekly-goal-text" placeholder="이번 주 목표 입력">
+        <div class="form-btns">
+          <button class="btn-sm-save" id="btn-save-weekly">저장</button>
+          <button class="btn-sm-cancel" id="btn-cancel-weekly">취소</button>
+        </div>
+      </div>
+      <div id="weekly-goals-list" class="goals-list"></div>
+    </div>
+
+    <div id="subtab-daily" class="sub-tab-content card" style="display:none;">
+      <div class="card-header-row">
+        <h3 class="card-title"><i class="fas fa-list-check"></i> 오늘의 목표</h3>
+        <button class="btn-add" id="btn-add-daily"><i class="fas fa-plus"></i> 추가</button>
+      </div>
+      <div id="daily-form" class="inline-form" style="display:none;">
+        <input type="text" id="daily-goal-text" placeholder="오늘 목표 입력">
+        <div class="form-btns">
+          <button class="btn-sm-save" id="btn-save-daily">저장</button>
+          <button class="btn-sm-cancel" id="btn-cancel-daily">취소</button>
+        </div>
+      </div>
+      <div id="daily-goals-list" class="goals-list"></div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-history"></i> 지난 기록 히스토리</h3>
+      <div id="history-list" class="history-list"></div>
+    </div>
+  </section>
+
+</div>
+<div id="toast" class="toast"></div>
+<script src="script.js"></script>
+</body>
+</html>

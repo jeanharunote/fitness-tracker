@@ -1372,23 +1372,29 @@ window.selectDietStage=function(idx){
 };
 
 // ===== 실행 의도 =====
+const TIME_SLOTS=[{val:'오전',label:'오전'},{val:'오후',label:'오후'},{val:'저녁',label:'저녁'}];
+
 function renderPerDayTimes(savedTimes){
   const days=Array.from(document.querySelectorAll('#intention-days .day-btn.active')).map(b=>b.dataset.val);
   const wrap=document.getElementById('per-day-times');
   if(!days.length){wrap.innerHTML='';return;}
   wrap.innerHTML=`<div class="per-day-times-grid">`+days.map(d=>{
-    const val=(savedTimes&&savedTimes[d])||'';
-    return `<div class="per-day-time-row">
-      <span class="per-day-label">${d}요일</span>
-      <input type="time" class="time-direct-input per-day-input" data-day="${d}" value="${val}" placeholder="시간 선택">
-    </div>`;
+    const saved=(savedTimes&&savedTimes[d])||'';
+    const btns=TIME_SLOTS.map(t=>`<button class="time-slot-btn${saved===t.val?' active':''}" data-day="${d}" data-val="${t.val}">${t.label}</button>`).join('');
+    return `<div class="per-day-time-row"><span class="per-day-label">${d}요일</span><div class="time-slot-group">${btns}</div></div>`;
   }).join('')+`</div>`;
-  wrap.querySelectorAll('.per-day-input').forEach(el=>el.addEventListener('change',()=>updateIntentionPreview()));
+  wrap.querySelectorAll('.time-slot-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      wrap.querySelectorAll(`.time-slot-btn[data-day="${btn.dataset.day}"]`).forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      updateIntentionPreview();
+    });
+  });
 }
 
 function getPerDayTimes(){
   const times={};
-  document.querySelectorAll('.per-day-input').forEach(el=>{times[el.dataset.day]=el.value;});
+  document.querySelectorAll('.time-slot-btn.active').forEach(btn=>{times[btn.dataset.day]=btn.dataset.val;});
   return times;
 }
 

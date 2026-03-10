@@ -828,8 +828,12 @@ body {
 .intention-row{display:flex;flex-direction:column;gap:6px;}
 .intention-row label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);}
 .per-day-times-grid{display:flex;flex-direction:column;gap:8px;margin-top:4px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid var(--border);}
-.per-day-time-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.per-day-time-row{display:flex;align-items:center;gap:10px;}
 .per-day-label{font-size:13px;font-weight:700;color:var(--text-sub);min-width:42px;}
+.time-slot-group{display:flex;gap:6px;}
+.time-slot-btn{padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text-sub);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;}
+.time-slot-btn:hover{border-color:var(--border-green);color:var(--green);}
+.time-slot-btn.active{background:rgba(0,255,136,0.1);border-color:var(--green);color:var(--green);}
 
 .intention-preview{
   margin-top:10px;padding:11px 14px;border-radius:10px;

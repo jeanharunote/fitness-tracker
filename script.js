@@ -747,6 +747,40 @@ const DIET_STAGES = [
   }
 ];
 
+// ===== 식품 대체 옵션 (재료 교체 가능 목록) =====
+const FOOD_ALTS = {
+  '현미밥 100g':              ['오트밀 60g', '고구마 120g', '퀴노아 80g'],
+  '현미밥 50g':               ['오트밀 35g', '고구마 60g', '퀴노아 40g'],
+  '현미밥 50g + 바나나 1개':  ['오트밀 35g + 바나나 1개', '고구마 80g + 블루베리 50g'],
+  '닭가슴살 100g':            ['흰살생선 120g', '두부 200g', '계란 3개', '소고기 안심 100g'],
+  '닭가슴살 200g':            ['흰살생선 240g', '두부 350g', '소고기 안심 180g'],
+  '감자 100g':                ['고구마 90g', '단호박 110g', '현미밥 70g'],
+  '감자 130g':                ['고구마 120g', '단호박 130g'],
+  '감자 50g':                 ['고구마 45g', '단호박 55g'],
+  '오트밀 30g':               ['현미밥 70g', '고구마 90g', '퀴노아 50g'],
+  '계란 2개':                 ['닭가슴살 70g', '두부 120g', '그릭요거트 150g'],
+  '삶은 계란 4개 (노른자 3개)':['닭가슴살 130g', '두부 200g + 계란 2개'],
+  '바나나 1개':               ['사과 1/2개', '블루베리 100g', '고구마 50g'],
+  '양배추·브로콜리즙':        ['오이 1개', '셀러리즙', '케일·시금치즙'],
+  '아스파라거스 2줄':         ['브로콜리 80g', '시금치 100g', '오이 1개'],
+  'MCT 오일 15ml':            ['올리브오일 10ml', '아보카도 1/4개'],
+  'MCT 오일 10ml':            ['올리브오일 8ml', '아보카도 1/5개'],
+};
+
+// 남성 권장 섭취량 조정 (기본 여성 기준 +30~50%)
+const MALE_PORTIONS = {
+  '현미밥 100g':   '현미밥 130g',
+  '현미밥 50g':    '현미밥 70g',
+  '닭가슴살 100g': '닭가슴살 150g',
+  '닭가슴살 200g': '닭가슴살 280g',
+  '감자 100g':     '감자 130g',
+  '감자 130g':     '감자 170g',
+  '감자 50g':      '감자 70g',
+  '오트밀 30g':    '오트밀 50g',
+  '계란 2개':      '계란 3개',
+  '삶은 계란 4개 (노른자 3개)': '삶은 계란 5개 (노른자 4개)',
+};
+
 // ===== 동기부여 멘트 =====
 const MOTIVATION_QUOTES = [
   "지금 일어나지 않으면 평생 후회할 사람이 되는 거야. 딱 운동화 끈만 묶어.",
@@ -1103,22 +1137,46 @@ window.toggleCheck=function(e,id,checkKey){
   renderDayWorkout(selectedDayIndex);
 };
 
+// 식단 아이템 렌더 (대체 재료 + 성별 섭취량 조정)
+function renderDietItem(item, isMale, uid){
+  const adjItem = isMale && MALE_PORTIONS[item] ? MALE_PORTIONS[item] : item;
+  const isMaleAdj = isMale && MALE_PORTIONS[item];
+  const alts = FOOD_ALTS[item] || [];
+  const altId = `alt-${uid}`;
+  return `
+    <div class="diet-item-wrap">
+      <div class="diet-item-row">
+        <span class="diet-item-dot">•</span>
+        <span class="diet-item-text${isMaleAdj?' male-adj':''}">${adjItem}${isMaleAdj?'<span class="male-badge">♂</span>':''}</span>
+        ${alts.length?`<button class="diet-alt-toggle" onclick="toggleAlts('${altId}')">대체↕</button>`:''}
+      </div>
+      ${alts.length?`<div class="diet-alts-wrap" id="${altId}" style="display:none;">${alts.map(a=>`<span class="diet-alt-chip">↔ ${a}</span>`).join('')}</div>`:''}
+    </div>`;
+}
+
+let _dietAltCounter = 0;
 function renderDietPlan(recommendedIdx, targetCal){
   const container=document.getElementById('diet-plan');
   if(!container) return;
+
+  const profile=loadData('profile');
+  const isMale = profile?.gender === 'male';
 
   // 주차별 식단 단계 진행 (3~4주차에는 한 단계 올라감)
   const stageProgression = selectedWeek >= 2 ? Math.min(recommendedIdx + 1, DIET_STAGES.length - 1) : recommendedIdx;
   const currentIdx = stageProgression;
   const stage = DIET_STAGES[currentIdx];
 
+  const genderNote = isMale
+    ? `<div class="diet-gender-note male">♂ 남성 모드 — 탄수화물 +30%, 단백질 +50% 조정 적용됨<br><small>♂ 표시 항목은 남성 권장량으로 자동 변경됩니다</small></div>`
+    : `<div class="diet-gender-note female">♀ 여성 모드 — 원본 레시피 기준 (55~60kg 여성 적합)<br><small>남성은 목표설정에서 성별을 남성으로 변경하세요</small></div>`;
+
   const formula = targetCal
-    ? `<div class="diet-formula-box">📐 목표 섭취량 계산: <strong>기초대사량 × 1.3 − 500 kcal</strong><br>나의 목표 섭취량 <strong style="color:${stage.theme}">${targetCal.toLocaleString()} kcal</strong> / 일<br><small style="color:rgba(255,255,255,0.4)">주 −0.3kg 기준 공식 적용</small></div>`
+    ? `<div class="diet-formula-box">📐 <strong>기초대사량 × 1.3 − 500 kcal</strong> 공식 적용<br>나의 목표 섭취량 <strong style="color:${stage.theme}">${targetCal.toLocaleString()} kcal</strong> / 일 · 주 −0.3kg 목표<br><small style="color:rgba(255,255,255,0.4)">남녀 모두 동일 공식 적용 (성별 BMR 차이 반영됨)</small></div>`
     : '';
 
-  // 단계 탭 선택 UI
   const stageTabs = DIET_STAGES.map((s,i)=>`
-    <button class="diet-stage-btn${i===currentIdx?' active':''}" style="${i===currentIdx?`background:${s.theme}22;border-color:${s.theme};color:${s.theme}`:''}${i===recommendedIdx&&i!==currentIdx?' border-color:rgba(255,255,255,0.25);':''}" onclick="selectDietStage(${i})">
+    <button class="diet-stage-btn${i===currentIdx?' active':''}" style="${i===currentIdx?`background:${s.theme}22;border-color:${s.theme};color:${s.theme}`:''}" onclick="selectDietStage(${i})">
       ${s.label}${i===recommendedIdx?'<span class="diet-rec-dot">추천</span>':''}
     </button>`).join('');
 
@@ -1131,11 +1189,12 @@ function renderDietPlan(recommendedIdx, targetCal){
   const mealHtml = mealRows.map(m=>`
     <div class="diet-meal" style="border-left:3px solid ${stage.theme}">
       <div class="diet-meal-title" style="color:${stage.theme}">${m.label}</div>
-      <div class="diet-meal-items">${m.items.map(it=>`• ${it}`).join('<br>')}</div>
+      <div class="diet-meal-items">${m.items.map(it=>renderDietItem(it, isMale, ++_dietAltCounter)).join('')}</div>
     </div>`).join('');
 
   container.innerHTML=`
     ${formula}
+    ${genderNote}
     <div class="diet-stage-info" style="border-color:${stage.theme}">
       <div class="diet-stage-badge" style="background:${stage.theme}22;color:${stage.theme}">${stage.label} · ${stage.duration}</div>
       <div class="diet-stage-tip">💡 ${stage.tip}</div>
@@ -1144,7 +1203,7 @@ function renderDietPlan(recommendedIdx, targetCal){
     ${mealHtml}
     <div class="diet-meal" style="border-left:3px solid #a78bfa">
       <div class="diet-meal-title" style="color:#a78bfa">💊 영양제</div>
-      <div class="diet-meal-items">${stage.supplements}</div>
+      <div class="diet-meal-items" style="font-size:12px;line-height:1.9;color:rgba(255,255,255,0.65);">${stage.supplements}</div>
     </div>
     <div class="diet-avoid-box">
       <div class="diet-avoid-title">🚫 피해야 할 음식</div>
@@ -1152,6 +1211,11 @@ function renderDietPlan(recommendedIdx, targetCal){
       <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">💡 완전 금지보다 주 1회 치팅데이로 스트레스 관리</div>
     </div>`;
 }
+
+window.toggleAlts=function(id){
+  const el=document.getElementById(id);
+  if(el) el.style.display=el.style.display==='none'?'flex':'none';
+};
 
 window.selectDietStage=function(idx){
   const plan=loadData('plan');

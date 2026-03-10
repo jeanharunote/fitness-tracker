@@ -646,6 +646,72 @@ const EXERCISE_DB = {
       '천천히 원위치합니다.'
     ],
     tip: '같은 동작을 세트 말미에 한번 더 해서 삼각근을 완전히 소진시켜요. 번아웃 세트로 활용하세요.'
+  },
+  // ===== 남성 추가 운동 =====
+  'chest-press': {
+    name: '체스트프레스 머신', nameEn: 'Chest Press Machine',
+    sets: '4세트', reps: '8-12개', rest: '90초',
+    target: ['대흉근', '삼두근', '전면삼각근'],
+    svg: SVG.shoulderPress,
+    steps: [
+      '시트를 조정해 손잡이가 가슴 중간 높이에 오게 맞춥니다.',
+      '등을 등받이에 완전히 밀착하고 발을 바닥에 고정합니다.',
+      '손잡이를 잡고 가슴 근육으로 밀어내며 팔을 거의 다 폅니다.',
+      '천천히 원위치로 가슴이 스트레칭 되는 느낌을 받으며 내려옵니다.'
+    ],
+    tip: '팔꿈치가 어깨보다 너무 높으면 어깨 부상 위험이 있어요. 가슴 근육의 수축/이완에 집중하세요.'
+  },
+  'bench-press': {
+    name: '덤벨 벤치프레스', nameEn: 'Dumbbell Bench Press',
+    sets: '4세트', reps: '8-10개', rest: '90초',
+    target: ['대흉근', '삼두근', '전면삼각근'],
+    svg: SVG.shoulderPress,
+    steps: [
+      '벤치에 누워 덤벨을 가슴 옆 90도로 들어 올립니다.',
+      '등을 자연스럽게 아치 형태로 유지하고 발을 바닥에 고정합니다.',
+      '덤벨을 천장 방향으로 밀어 올리고 정점에서 잠깐 수축합니다.',
+      '천천히 내려오며 가슴 근육이 늘어나는 느낌을 유지합니다. 8-12kg부터 시작하세요.'
+    ],
+    tip: '바벨보다 가동 범위가 넓어 가슴 전체를 자극할 수 있어요. 손목이 꺾이지 않게 주의하세요.'
+  },
+  'incline-press': {
+    name: '인클라인 덤벨프레스', nameEn: 'Incline Dumbbell Press',
+    sets: '3세트', reps: '10-12개', rest: '90초',
+    target: ['상부 대흉근', '전면삼각근', '삼두근'],
+    svg: SVG.shoulderPress,
+    steps: [
+      '벤치를 30-45도로 세우고 덤벨을 어깨 너비로 잡습니다.',
+      '등을 벤치에 밀착하고 코어에 힘을 줍니다.',
+      '덤벨을 위 대각선 방향으로 밀어 올립니다.',
+      '천천히 내려와 상부 흉근이 스트레칭 되는 느낌을 즐깁니다.'
+    ],
+    tip: '각도가 너무 높으면 삼각근 운동이 돼요. 30-45도가 상부 흉근 자극에 최적이에요.'
+  },
+  'cable-fly': {
+    name: '케이블 플라이', nameEn: 'Cable Fly',
+    sets: '3세트', reps: '12-15개', rest: '60초',
+    target: ['대흉근 내측', '전면삼각근'],
+    svg: SVG.lateralRaise,
+    steps: [
+      '케이블 머신 양쪽 풀리를 가슴 높이로 설정합니다.',
+      '양손으로 손잡이를 잡고 한 발 앞으로 나와 서있습니다.',
+      '팔꿈치를 약간 구부린 채 양팔을 앞으로 모아 가슴 앞에서 만납니다.',
+      '가슴 내측 수축을 1초 유지 후 천천히 원위치합니다.'
+    ],
+    tip: '팔꿈치가 완전히 펴지지 않는 게 포인트예요. 아치 모양으로 팔을 모아야 흉근에 집중돼요.'
+  },
+  'deadlift': {
+    name: '루마니안 데드리프트', nameEn: 'Romanian Deadlift',
+    sets: '4세트', reps: '8-10개', rest: '120초',
+    target: ['햄스트링', '대둔근', '척추기립근'],
+    svg: SVG.barbelRow,
+    steps: [
+      '발을 어깨 너비로 서고 덤벨이나 바벨을 허벅지 앞에 잡습니다.',
+      '무릎을 살짝 구부린 채 고정하고 엉덩이를 뒤로 밀며 상체를 숙입니다.',
+      '바가 무릎 아래까지 내려갈 때까지 등을 일자로 유지합니다.',
+      '햄스트링과 둔근을 수축하며 천천히 올라옵니다. 10-20kg 시작.'
+    ],
+    tip: '허리가 아닌 엉덩이 경첩(힙힌지) 동작이에요. 등이 굽으면 즉시 무게를 줄이세요.'
   }
 };
 
@@ -689,6 +755,50 @@ const FOUR_WEEK_SCHEDULE = [
     { day: '목', label: 'THU', emoji: '🌿', type: '휴식', badge: '회복', exercises: [], abs: false },
     { day: '금', label: 'FRI', emoji: '🦵', type: '하체 B+C', badge: '복합', exercises: ['leg-extension','v-squat','hip-press','leg-curl','wide-squat'], abs: true },
     { day: '토', label: 'SAT', emoji: '💪', type: '어깨/팔 E', badge: '옵션E', exercises: ['lateral-raise','dumbbell-shoulder','smith-shoulder','lateral-raise-b','dumbbell-curl','cable-pushdown'], abs: false },
+    { day: '일', label: 'SUN', emoji: '😴', type: '휴식', badge: '회복', exercises: [], abs: false }
+  ]
+];
+
+// ===== 남성 4주 운동 스케줄 (가슴/등/하체/어깨 분할) =====
+const FOUR_WEEK_SCHEDULE_MALE = [
+  // ── 1주차: 기본 분할 적응 ──
+  [
+    { day: '월', label: 'MON', emoji: '🦵', type: '하체 복합', badge: '스쿼트', exercises: ['smith-squat','v-squat','leg-extension','leg-curl'], abs: true },
+    { day: '화', label: 'TUE', emoji: '🔙', type: '등 당기기', badge: '풀', exercises: ['pullup','lat-pulldown','seated-row','tbar-row'], abs: false },
+    { day: '수', label: 'WED', emoji: '💪', type: '가슴 밀기', badge: '푸시', exercises: ['bench-press','chest-press','incline-press','cable-fly'], abs: true },
+    { day: '목', label: 'THU', emoji: '🌿', type: '휴식', badge: '회복', exercises: [], abs: false },
+    { day: '금', label: 'FRI', emoji: '🦵', type: '하체 고립', badge: '레그', exercises: ['leg-extension','leg-curl','v-squat','hip-press','deadlift'], abs: true },
+    { day: '토', label: 'SAT', emoji: '💪', type: '어깨/팔', badge: '숄더', exercises: ['smith-shoulder','lateral-raise','standing-press','dumbbell-curl','cable-pushdown'], abs: false },
+    { day: '일', label: 'SUN', emoji: '😴', type: '휴식', badge: '회복', exercises: [], abs: false }
+  ],
+  // ── 2주차: 강도 강화 ──
+  [
+    { day: '월', label: 'MON', emoji: '🦵', type: '하체 복합', badge: '스쿼트', exercises: ['smith-squat','v-squat','hip-press','wide-squat'], abs: true },
+    { day: '화', label: 'TUE', emoji: '🔙', type: '등 헤비', badge: '헤비', exercises: ['hyperext-row','barbell-row','tbar-row','lat-pulldown','lat-pulldown-close'], abs: false },
+    { day: '수', label: 'WED', emoji: '💪', type: '가슴 볼륨', badge: '볼륨', exercises: ['bench-press','incline-press','chest-press','cable-fly'], abs: true },
+    { day: '목', label: 'THU', emoji: '🌿', type: '휴식', badge: '회복', exercises: [], abs: false },
+    { day: '금', label: 'FRI', emoji: '🦵', type: '하체 고립', badge: '레그', exercises: ['leg-extension','leg-curl','deadlift','glute-machine'], abs: true },
+    { day: '토', label: 'SAT', emoji: '💪', type: '어깨/팔', badge: '숄더', exercises: ['lateral-raise','dumbbell-shoulder','smith-shoulder','dumbbell-curl','cable-pushdown'], abs: false },
+    { day: '일', label: 'SUN', emoji: '😴', type: '휴식', badge: '회복', exercises: [], abs: false }
+  ],
+  // ── 3주차: 루틴 교체 ──
+  [
+    { day: '월', label: 'MON', emoji: '🦵', type: '하체 A', badge: '복합', exercises: ['smith-squat','v-squat','leg-extension','deadlift'], abs: true },
+    { day: '화', label: 'TUE', emoji: '🔙', type: '등 당기기', badge: '풀', exercises: ['pullup','lat-pulldown-close','seated-row','hyperext-row'], abs: false },
+    { day: '수', label: 'WED', emoji: '💪', type: '가슴+삼두', badge: '푸시', exercises: ['bench-press','chest-press','incline-press','cable-pushdown'], abs: true },
+    { day: '목', label: 'THU', emoji: '🌿', type: '휴식', badge: '회복', exercises: [], abs: false },
+    { day: '금', label: 'FRI', emoji: '🦵', type: '하체 B', badge: '레그', exercises: ['leg-curl','hip-press','wide-squat','glute-machine'], abs: true },
+    { day: '토', label: 'SAT', emoji: '💪', type: '어깨+이두', badge: '숄더', exercises: ['smith-shoulder','lateral-raise','dumbbell-shoulder','dumbbell-curl','cable-fly'], abs: false },
+    { day: '일', label: 'SUN', emoji: '😴', type: '휴식', badge: '회복', exercises: [], abs: false }
+  ],
+  // ── 4주차: 최대 강도 ──
+  [
+    { day: '월', label: 'MON', emoji: '🦵', type: '하체 최대', badge: '맥스', exercises: ['smith-squat','v-squat','leg-extension','leg-curl','deadlift'], abs: true },
+    { day: '화', label: 'TUE', emoji: '🔙', type: '등 최대', badge: '맥스', exercises: ['pullup','barbell-row','tbar-row','lat-pulldown','lat-pulldown-close'], abs: false },
+    { day: '수', label: 'WED', emoji: '💪', type: '가슴 최대', badge: '맥스', exercises: ['bench-press','incline-press','chest-press','cable-fly'], abs: true },
+    { day: '목', label: 'THU', emoji: '🌿', type: '휴식', badge: '회복', exercises: [], abs: false },
+    { day: '금', label: 'FRI', emoji: '🦵', type: '하체 복합', badge: '복합', exercises: ['smith-squat','hip-press','leg-curl','wide-squat'], abs: true },
+    { day: '토', label: 'SAT', emoji: '💪', type: '어깨/팔 최대', badge: '맥스', exercises: ['smith-shoulder','lateral-raise','dumbbell-shoulder','dumbbell-curl','cable-pushdown'], abs: false },
     { day: '일', label: 'SUN', emoji: '😴', type: '휴식', badge: '회복', exercises: [], abs: false }
   ]
 ];
@@ -1007,8 +1117,13 @@ window.selectWeek=function(w){
   renderDayWorkout(selectedDayIndex);
 };
 
+function getActiveSchedule(){
+  const profile=loadData('profile');
+  return profile?.gender==='male' ? FOUR_WEEK_SCHEDULE_MALE[selectedWeek] : FOUR_WEEK_SCHEDULE[selectedWeek];
+}
+
 function renderWeekDayGrid(){
-  const schedule=FOUR_WEEK_SCHEDULE[selectedWeek];
+  const schedule=getActiveSchedule();
   const grid=document.getElementById('week-day-grid');
   grid.innerHTML=schedule.map((d,i)=>`
     <button class="week-day-btn${i===selectedDayIndex?' active':''}" onclick="selectDay(${i})">
@@ -1025,7 +1140,7 @@ window.selectDay=function(i){
 };
 
 function renderDayWorkout(i){
-  const sched=FOUR_WEEK_SCHEDULE[selectedWeek][i];
+  const sched=getActiveSchedule()[i];
   const container=document.getElementById('day-workout-view');
   const savedChecks=loadData('exercise-checks')||{};
   const dateKey=todayStr();
@@ -1058,13 +1173,19 @@ function renderDayWorkout(i){
       <p>정말 대단해요! 유산소도 잊지 마세요 💪</p>
     </div>`:'';
 
+  const profile=loadData('profile');
+  const isMale=profile?.gender==='male';
+  const genderBadge=isMale
+    ? `<span class="gender-workout-badge male">♂ 남성 · 8-12회 고중량</span>`
+    : `<span class="gender-workout-badge female">♀ 여성 · 15-20회 고반복</span>`;
+
   const exerciseCards=sched.exercises.map(id=>renderExerciseCard(id,checks[id]||false,checkKey)).join('');
-  const absHeader=sched.abs?`<div class="abs-section-header"><i class="fas fa-fire"></i> 복근 운동 (매일 꾸준히) — 넓은 골반 유형</div>`:'';
+  const absHeader=sched.abs?`<div class="abs-section-header"><i class="fas fa-fire"></i> 복근 운동 (매일 꾸준히)</div>`:'';
   const absCards=sched.abs?ABS_EXERCISES.map(id=>renderExerciseCard(id,checks[id]||false,checkKey)).join(''):'';
 
   container.innerHTML=`
     <div class="plan-day-header">
-      <div class="plan-day-title">${sched.emoji} ${sched.type}</div>
+      <div class="plan-day-title">${sched.emoji} ${sched.type} ${genderBadge}</div>
       <div class="plan-day-meta">${sched.exercises.length}개 동작 · 복근 ${sched.abs?'포함':'제외'}</div>
     </div>
     <div class="progress-wrap">

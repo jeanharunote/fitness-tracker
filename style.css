@@ -775,3 +775,18 @@ body {
   color:#93c5fd;
 }
 .diet-gender-note small{font-weight:400;opacity:0.7;}
+
+/* ===== 성별 운동 배지 ===== */
+.gender-workout-badge{
+  display:inline-block;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:8px;margin-left:6px;
+  vertical-align:middle;
+}
+.gender-workout-badge.female{
+  background:rgba(236,72,153,0.15);color:#f472b6;
+  border:1px solid rgba(236,72,153,0.25);
+}
+.gender-workout-badge.male{
+  background:rgba(96,165,250,0.15);color:#93c5fd;
+  border:1px solid rgba(96,165,250,0.25);
+}

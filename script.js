@@ -1377,10 +1377,10 @@ function renderPerDayTimes(savedTimes){
   const wrap=document.getElementById('per-day-times');
   if(!days.length){wrap.innerHTML='';return;}
   wrap.innerHTML=`<div class="per-day-times-grid">`+days.map(d=>{
-    const val=(savedTimes&&savedTimes[d])||'20:00';
+    const val=(savedTimes&&savedTimes[d])||'';
     return `<div class="per-day-time-row">
       <span class="per-day-label">${d}요일</span>
-      <input type="time" class="time-direct-input per-day-input" data-day="${d}" value="${val}">
+      <input type="time" class="time-direct-input per-day-input" data-day="${d}" value="${val}" placeholder="시간 선택">
     </div>`;
   }).join('')+`</div>`;
   wrap.querySelectorAll('.per-day-input').forEach(el=>el.addEventListener('change',()=>updateIntentionPreview()));

@@ -205,10 +205,10 @@ body {
 
 .time-input-wrap{display:flex;align-items:center;gap:6px;}
 .time-direct-input{
-  width:80px;padding:8px 10px;
+  width:130px;padding:8px 10px;
   background:var(--card);border:1px solid var(--border);border-radius:8px;
   color:var(--text);font-size:14px;font-weight:700;font-family:inherit;
-  text-align:center;
+  text-align:center;box-sizing:border-box;
 }
 .time-direct-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 8px rgba(0,255,136,0.15);}
 

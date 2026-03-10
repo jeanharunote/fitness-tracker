@@ -1776,10 +1776,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   initIntention();
   initWeightLog();
   restoreProfile();updateHeaderCountdown();
-  // 저장된 플랜이 있으면 운동플랜 탭으로 자동 이동
-  if(loadData('plan')){
-    document.querySelector('[data-tab="plan"]').click();
-  } else {
-    document.getElementById('inp-start-date').value=todayStr();
-  }
+  const sdEl=document.getElementById('inp-start-date');
+  if(!sdEl.value) sdEl.value=todayStr();
 });

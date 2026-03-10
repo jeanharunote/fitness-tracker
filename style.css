@@ -670,3 +670,65 @@ body {
   .symptoms-grid{grid-template-columns:repeat(2,1fr);}
   .tab-btn span{font-size:9px;}
 }
+
+/* ===== 주차 선택 UI ===== */
+.week-selector-wrap{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px;
+}
+.week-select-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 4px;border-radius:12px;
+  border:1px solid var(--border);background:var(--card);
+  color:var(--text-muted);cursor:pointer;transition:all 0.2s;font-family:inherit;
+}
+.week-select-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
+.week-select-btn.active{
+  border-color:var(--green);background:rgba(0,255,136,0.08);
+  color:var(--green);box-shadow:0 0 12px rgba(0,255,136,0.12);
+}
+.wsb-num{font-size:15px;font-weight:800;}
+.wsb-label{font-size:9px;font-weight:600;text-align:center;line-height:1.3;}
+
+/* ===== 식단 탭 & 단계 UI ===== */
+.diet-formula-box{
+  background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.15);
+  border-radius:12px;padding:13px 15px;margin-bottom:12px;
+  font-size:12px;line-height:1.9;color:rgba(255,255,255,0.7);
+}
+.diet-stage-info{
+  border:1px solid;border-radius:12px;padding:12px 14px;margin-bottom:10px;
+  background:rgba(255,255,255,0.02);
+}
+.diet-stage-badge{
+  display:inline-block;padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;margin-bottom:7px;
+}
+.diet-stage-tip{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;}
+.diet-stage-tabs{
+  display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;
+}
+.diet-stage-btn{
+  position:relative;padding:5px 12px;border-radius:20px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-muted);font-size:11px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;font-family:inherit;
+}
+.diet-stage-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.2);}
+.diet-rec-dot{
+  position:absolute;top:-6px;right:-4px;
+  background:var(--gold);color:#000;
+  font-size:8px;font-weight:800;padding:1px 4px;border-radius:6px;
+  white-space:nowrap;
+}
+.diet-avoid-box{
+  border:1px solid rgba(255,107,107,0.2);background:rgba(255,107,107,0.04);
+  border-radius:12px;padding:12px 14px;margin-top:10px;
+}
+.diet-avoid-title{font-size:12px;font-weight:700;color:#ff6b6b;margin-bottom:5px;}
+.diet-avoid-items{font-size:12px;color:rgba(255,255,255,0.55);line-height:1.8;}
+
+@media(max-width:480px){
+  .week-selector-wrap{gap:5px;}
+  .wsb-label{font-size:8px;}
+  .diet-stage-tabs{gap:4px;}
+}

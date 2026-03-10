@@ -1,259 +1,749 @@
-/* ===========================
-   FITNESS TRACKER - script.js
-   =========================== */
+/* =============================================
+   FITNESS TRACKER — script.js
+   ============================================= */
 
-// ===== PDF에서 가져온 실제 운동 루틴 데이터 =====
-const BARF_ROUTINES = {
-  lower: {
-    title: '하체 루틴',
-    frequency: '주 2-3회',
-    options: [
-      {
-        name: '옵션 A',
-        exercises: [
-          { name: '이너타이', reps: '15개', sets: '3세트', weight: '-' },
-          { name: '아웃타이', reps: '15개', sets: '3세트', weight: '-' },
-          { name: '스미스 스쿼트', reps: '12개', sets: '4세트', weight: '-' },
-          { name: '글루트 머신', reps: '25개', sets: '3세트', weight: '15kg' }
-        ]
-      },
-      {
-        name: '옵션 B',
-        exercises: [
-          { name: '레그 익스텐션', reps: '15개', sets: '4세트', weight: '-' },
-          { name: '브이 스쿼트 머신', reps: '15개', sets: '4세트', weight: '-' },
-          { name: '포커스 힙프레스', reps: '15개', sets: '4세트', weight: '-' },
-          { name: '글루트 머신', reps: '25개', sets: '4세트', weight: '-' }
-        ]
-      },
-      {
-        name: '옵션 C',
-        exercises: [
-          { name: '레그 컬', reps: '15개', sets: '4세트', weight: '30kg' },
-          { name: '브이 스쿼트', reps: '15개', sets: '4세트', weight: '양쪽 10kg' },
-          { name: '힙 프레스', reps: '15개', sets: '4세트', weight: '80kg (깔리지 않게)' },
-          { name: '와이드 스쿼트(케틀벨)', reps: '20개', sets: '3세트', weight: '12kg' }
-        ]
-      }
-    ]
+// ===== SVG 일러스트 =====
+const SVG = {
+  squat: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <line x1="20" y1="10" x2="20" y2="110" stroke="#444" stroke-width="3"/>
+    <line x1="100" y1="10" x2="100" y2="110" stroke="#444" stroke-width="3"/>
+    <rect x="15" y="38" width="90" height="5" rx="2" fill="#777"/>
+    <rect x="8" y="34" width="9" height="13" rx="2" fill="#555"/>
+    <rect x="103" y="34" width="9" height="13" rx="2" fill="#555"/>
+    <circle cx="60" cy="24" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="33" x2="60" y2="43" stroke="#fff" stroke-width="2"/>
+    <line x1="38" y1="43" x2="82" y2="43" stroke="#fff" stroke-width="2.5"/>
+    <line x1="60" y1="43" x2="57" y2="68" stroke="#fff" stroke-width="2.5"/>
+    <line x1="57" y1="68" x2="42" y2="92" stroke="#00ff88" stroke-width="3"/>
+    <line x1="57" y1="68" x2="72" y2="92" stroke="#00ff88" stroke-width="3"/>
+    <line x1="42" y1="92" x2="38" y2="112" stroke="#fff" stroke-width="2"/>
+    <line x1="72" y1="92" x2="76" y2="112" stroke="#fff" stroke-width="2"/>
+    <ellipse cx="43" cy="90" rx="9" ry="13" fill="#00ff88" opacity="0.2"/>
+    <ellipse cx="72" cy="90" rx="9" ry="13" fill="#00ff88" opacity="0.2"/>
+  </svg>`,
+
+  legExtension: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="55" width="55" height="30" rx="6" fill="#333" stroke="#555" stroke-width="1"/>
+    <rect x="50" y="50" width="8" height="40" rx="3" fill="#555"/>
+    <circle cx="40" cy="50" r="10" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="40" y1="60" x2="40" y2="75" stroke="#fff" stroke-width="2.5"/>
+    <line x1="20" y1="65" x2="55" y2="65" stroke="#fff" stroke-width="2"/>
+    <line x1="40" y1="75" x2="25" y2="85" stroke="#fff" stroke-width="2.5"/>
+    <line x1="25" y1="85" x2="90" y2="85" stroke="#00ff88" stroke-width="3"/>
+    <rect x="88" y="80" width="12" height="12" rx="3" fill="#555"/>
+    <ellipse cx="60" cy="85" rx="18" ry="7" fill="#00ff88" opacity="0.2"/>
+  </svg>`,
+
+  legCurl: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="45" width="100" height="20" rx="6" fill="#333" stroke="#555" stroke-width="1"/>
+    <circle cx="35" cy="38" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="35" y1="47" x2="35" y2="65" stroke="#fff" stroke-width="2.5"/>
+    <line x1="15" y1="57" x2="55" y2="57" stroke="#fff" stroke-width="2"/>
+    <line x1="35" y1="65" x2="50" y2="78" stroke="#fff" stroke-width="2.5"/>
+    <line x1="50" y1="78" x2="50" y2="95" stroke="#00ff88" stroke-width="3"/>
+    <rect x="44" y="93" width="14" height="10" rx="3" fill="#555"/>
+    <ellipse cx="50" cy="85" rx="8" ry="14" fill="#00ff88" opacity="0.25"/>
+  </svg>`,
+
+  hipPress: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="60" width="110" height="18" rx="5" fill="#333" stroke="#555" stroke-width="1"/>
+    <rect x="50" y="30" width="20" height="35" rx="4" fill="#444" stroke="#555" stroke-width="1"/>
+    <circle cx="60" cy="22" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="31" x2="60" y2="58" stroke="#fff" stroke-width="2.5"/>
+    <line x1="40" y1="52" x2="80" y2="52" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="58" x2="45" y2="75" stroke="#00ff88" stroke-width="3"/>
+    <line x1="60" y1="58" x2="75" y2="75" stroke="#00ff88" stroke-width="3"/>
+    <line x1="45" y1="75" x2="40" y2="92" stroke="#fff" stroke-width="2"/>
+    <line x1="75" y1="75" x2="80" y2="92" stroke="#fff" stroke-width="2"/>
+    <ellipse cx="60" cy="62" rx="14" ry="9" fill="#00ff88" opacity="0.25"/>
+  </svg>`,
+
+  wideSquat: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="22" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="31" x2="60" y2="55" stroke="#fff" stroke-width="2.5"/>
+    <line x1="38" y1="43" x2="82" y2="43" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="55" x2="35" y2="80" stroke="#00ff88" stroke-width="3"/>
+    <line x1="60" y1="55" x2="85" y2="80" stroke="#00ff88" stroke-width="3"/>
+    <line x1="35" y1="80" x2="28" y2="105" stroke="#fff" stroke-width="2"/>
+    <line x1="85" y1="80" x2="92" y2="105" stroke="#fff" stroke-width="2"/>
+    <rect x="48" y="55" width="24" height="22" rx="6" fill="#555" stroke="#777" stroke-width="1"/>
+    <ellipse cx="35" cy="82" rx="10" ry="14" fill="#00ff88" opacity="0.2"/>
+    <ellipse cx="85" cy="82" rx="10" ry="14" fill="#00ff88" opacity="0.2"/>
+  </svg>`,
+
+  innerThigh: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="25" y="55" width="70" height="35" rx="8" fill="#333" stroke="#555" stroke-width="1"/>
+    <circle cx="60" cy="38" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="47" x2="60" y2="65" stroke="#fff" stroke-width="2.5"/>
+    <line x1="38" y1="58" x2="82" y2="58" stroke="#fff" stroke-width="2"/>
+    <line x1="38" y1="65" x2="38" y2="90" stroke="#00ff88" stroke-width="3"/>
+    <line x1="82" y1="65" x2="82" y2="90" stroke="#00ff88" stroke-width="3"/>
+    <ellipse cx="38" cy="78" rx="8" ry="14" fill="#00ff88" opacity="0.25"/>
+    <ellipse cx="82" cy="78" rx="8" ry="14" fill="#00ff88" opacity="0.25"/>
+  </svg>`,
+
+  outerThigh: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="25" y="55" width="70" height="35" rx="8" fill="#333" stroke="#555" stroke-width="1"/>
+    <circle cx="60" cy="38" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="47" x2="60" y2="65" stroke="#fff" stroke-width="2.5"/>
+    <line x1="38" y1="58" x2="82" y2="58" stroke="#fff" stroke-width="2"/>
+    <line x1="38" y1="65" x2="20" y2="90" stroke="#00ff88" stroke-width="3"/>
+    <line x1="82" y1="65" x2="100" y2="90" stroke="#00ff88" stroke-width="3"/>
+    <ellipse cx="22" cy="82" rx="10" ry="13" fill="#00ff88" opacity="0.25"/>
+    <ellipse cx="98" cy="82" rx="10" ry="13" fill="#00ff88" opacity="0.25"/>
+  </svg>`,
+
+  gluteMachine: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="50" width="50" height="55" rx="5" fill="#2a2a2a" stroke="#555" stroke-width="1"/>
+    <circle cx="30" cy="38" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="30" y1="47" x2="30" y2="68" stroke="#fff" stroke-width="2.5"/>
+    <line x1="10" y1="62" x2="50" y2="62" stroke="#fff" stroke-width="2"/>
+    <line x1="30" y1="68" x2="55" y2="80" stroke="#fff" stroke-width="2.5"/>
+    <line x1="55" y1="80" x2="95" y2="60" stroke="#00ff88" stroke-width="3"/>
+    <ellipse cx="75" cy="68" rx="16" ry="10" fill="#00ff88" opacity="0.25"/>
+    <rect x="90" y="52" width="20" height="15" rx="4" fill="#555"/>
+  </svg>`,
+
+  latPulldown: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <line x1="10" y1="8" x2="110" y2="8" stroke="#555" stroke-width="3"/>
+    <line x1="60" y1="8" x2="60" y2="28" stroke="#777" stroke-width="2"/>
+    <line x1="40" y1="28" x2="80" y2="28" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="60" cy="48" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="57" x2="60" y2="80" stroke="#fff" stroke-width="2.5"/>
+    <line x1="40" y1="68" x2="80" y2="68" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="80" x2="45" y2="100" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="80" x2="75" y2="100" stroke="#fff" stroke-width="2"/>
+    <line x1="40" y1="34" x2="40" y2="68" stroke="#00ff88" stroke-width="2.5" stroke-dasharray="4,3"/>
+    <line x1="80" y1="34" x2="80" y2="68" stroke="#00ff88" stroke-width="2.5" stroke-dasharray="4,3"/>
+    <ellipse cx="60" cy="65" rx="22" ry="12" fill="#00ff88" opacity="0.15"/>
+  </svg>`,
+
+  seatedRow: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="65" width="35" height="45" rx="5" fill="#2a2a2a" stroke="#555" stroke-width="1"/>
+    <circle cx="30" cy="35" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="30" y1="44" x2="30" y2="65" stroke="#fff" stroke-width="2.5"/>
+    <line x1="10" y1="56" x2="50" y2="56" stroke="#fff" stroke-width="2"/>
+    <line x1="30" y1="65" x2="25" y2="90" stroke="#fff" stroke-width="2"/>
+    <line x1="30" y1="65" x2="50" y2="80" stroke="#fff" stroke-width="2"/>
+    <line x1="30" y1="50" x2="95" y2="50" stroke="#00ff88" stroke-width="3"/>
+    <line x1="30" y1="50" x2="55" y2="50" stroke="#fff" stroke-width="2.5"/>
+    <rect x="92" y="44" width="18" height="12" rx="3" fill="#555"/>
+    <ellipse cx="45" cy="50" rx="18" ry="8" fill="#00ff88" opacity="0.2"/>
+  </svg>`,
+
+  shoulderPress: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="22" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="31" x2="60" y2="65" stroke="#fff" stroke-width="2.5"/>
+    <line x1="38" y1="45" x2="82" y2="45" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="65" x2="45" y2="88" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="65" x2="75" y2="88" stroke="#fff" stroke-width="2"/>
+    <line x1="45" y1="88" x2="42" y2="110" stroke="#fff" stroke-width="2"/>
+    <line x1="75" y1="88" x2="78" y2="110" stroke="#fff" stroke-width="2"/>
+    <line x1="28" y1="32" x2="92" y2="32" stroke="#888" stroke-width="4" stroke-linecap="round"/>
+    <rect x="18" y="26" width="10" height="13" rx="2" fill="#555"/>
+    <rect x="92" y="26" width="10" height="13" rx="2" fill="#555"/>
+    <line x1="38" y1="32" x2="28" y2="42" stroke="#fff" stroke-width="2"/>
+    <line x1="82" y1="32" x2="92" y2="42" stroke="#fff" stroke-width="2"/>
+    <ellipse cx="37" cy="40" rx="10" ry="10" fill="#00ff88" opacity="0.25"/>
+    <ellipse cx="83" cy="40" rx="10" ry="10" fill="#00ff88" opacity="0.25"/>
+  </svg>`,
+
+  lateralRaise: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="22" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="31" x2="60" y2="68" stroke="#fff" stroke-width="2.5"/>
+    <line x1="60" y1="68" x2="45" y2="92" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="68" x2="75" y2="92" stroke="#fff" stroke-width="2"/>
+    <line x1="45" y1="92" x2="42" y2="112" stroke="#fff" stroke-width="2"/>
+    <line x1="75" y1="92" x2="78" y2="112" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="44" x2="18" y2="35" stroke="#00ff88" stroke-width="3"/>
+    <line x1="60" y1="44" x2="102" y2="35" stroke="#00ff88" stroke-width="3"/>
+    <circle cx="15" cy="34" r="4" fill="#777"/>
+    <circle cx="105" cy="34" r="4" fill="#777"/>
+    <ellipse cx="30" cy="40" rx="14" ry="8" fill="#00ff88" opacity="0.2"/>
+    <ellipse cx="90" cy="40" rx="14" ry="8" fill="#00ff88" opacity="0.2"/>
+  </svg>`,
+
+  pullup: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <line x1="10" y1="10" x2="110" y2="10" stroke="#555" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="60" cy="28" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="37" x2="60" y2="62" stroke="#fff" stroke-width="2.5"/>
+    <line x1="60" y1="48" x2="42" y2="60" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="48" x2="78" y2="60" stroke="#fff" stroke-width="2"/>
+    <line x1="42" y1="10" x2="42" y2="60" stroke="#00ff88" stroke-width="2.5"/>
+    <line x1="78" y1="10" x2="78" y2="60" stroke="#00ff88" stroke-width="2.5"/>
+    <line x1="60" y1="62" x2="50" y2="85" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="62" x2="70" y2="85" stroke="#fff" stroke-width="2"/>
+    <ellipse cx="51" cy="38" rx="12" ry="14" fill="#00ff88" opacity="0.18"/>
+    <ellipse cx="69" cy="38" rx="12" ry="14" fill="#00ff88" opacity="0.18"/>
+  </svg>`,
+
+  tbarRow: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="35" cy="28" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="35" y1="37" x2="35" y2="62" stroke="#fff" stroke-width="2.5"/>
+    <line x1="15" y1="50" x2="55" y2="50" stroke="#fff" stroke-width="2"/>
+    <line x1="35" y1="62" x2="28" y2="88" stroke="#fff" stroke-width="2"/>
+    <line x1="35" y1="62" x2="50" y2="82" stroke="#fff" stroke-width="2"/>
+    <line x1="35" y1="45" x2="90" y2="55" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+    <line x1="35" y1="45" x2="45" y2="62" stroke="#00ff88" stroke-width="2.5" stroke-dasharray="4,3"/>
+    <rect x="88" y="48" width="22" height="14" rx="4" fill="#555"/>
+    <rect x="5" y="100" width="110" height="6" rx="3" fill="#333"/>
+    <line x1="8" y1="100" x2="8" y2="88" stroke="#444" stroke-width="2"/>
+    <ellipse cx="45" cy="52" rx="15" ry="10" fill="#00ff88" opacity="0.2"/>
+  </svg>`,
+
+  dumbbellCurl: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="20" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="29" x2="60" y2="62" stroke="#fff" stroke-width="2.5"/>
+    <line x1="38" y1="42" x2="82" y2="42" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="62" x2="48" y2="85" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="62" x2="72" y2="85" stroke="#fff" stroke-width="2"/>
+    <line x1="48" y1="85" x2="46" y2="108" stroke="#fff" stroke-width="2"/>
+    <line x1="72" y1="85" x2="74" y2="108" stroke="#fff" stroke-width="2"/>
+    <line x1="38" y1="42" x2="22" y2="58" stroke="#00ff88" stroke-width="2.5"/>
+    <circle cx="17" cy="60" r="5" fill="#666"/>
+    <ellipse cx="30" cy="50" rx="11" ry="14" fill="#00ff88" opacity="0.25"/>
+  </svg>`,
+
+  cablePushdown: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <line x1="60" y1="5" x2="60" y2="35" stroke="#777" stroke-width="2"/>
+    <rect x="45" y="30" width="30" height="8" rx="3" fill="#555"/>
+    <circle cx="60" cy="52" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="61" x2="60" y2="85" stroke="#fff" stroke-width="2.5"/>
+    <line x1="38" y1="72" x2="82" y2="72" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="85" x2="50" y2="108" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="85" x2="70" y2="108" stroke="#fff" stroke-width="2"/>
+    <line x1="82" y1="72" x2="82" y2="105" stroke="#00ff88" stroke-width="3"/>
+    <circle cx="82" cy="106" r="5" fill="#666"/>
+    <ellipse cx="82" cy="88" rx="8" ry="16" fill="#00ff88" opacity="0.25"/>
+  </svg>`,
+
+  hyperExtension: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="65" width="60" height="20" rx="5" fill="#2a2a2a" stroke="#555" stroke-width="1"/>
+    <rect x="10" y="50" width="20" height="20" rx="4" fill="#333" stroke="#555" stroke-width="1"/>
+    <circle cx="85" cy="30" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="85" y1="39" x2="65" y2="65" stroke="#fff" stroke-width="2.5"/>
+    <line x1="65" y1="55" x2="50" y2="62" stroke="#fff" stroke-width="2"/>
+    <line x1="65" y1="65" x2="30" y2="72" stroke="#fff" stroke-width="2.5"/>
+    <line x1="30" y1="72" x2="18" y2="70" stroke="#00ff88" stroke-width="3"/>
+    <ellipse cx="70" cy="58" rx="18" ry="9" fill="#00ff88" opacity="0.2"/>
+  </svg>`,
+
+  barbelRow: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="35" cy="22" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="35" y1="31" x2="35" y2="55" stroke="#fff" stroke-width="2.5"/>
+    <line x1="15" y1="45" x2="55" y2="45" stroke="#fff" stroke-width="2"/>
+    <line x1="35" y1="55" x2="28" y2="80" stroke="#fff" stroke-width="2"/>
+    <line x1="35" y1="55" x2="50" y2="75" stroke="#fff" stroke-width="2"/>
+    <line x1="35" y1="40" x2="100" y2="55" stroke="#888" stroke-width="3.5" stroke-linecap="round"/>
+    <rect x="2" y="52" width="10" height="16" rx="2" fill="#666"/>
+    <rect x="100" y="50" width="10" height="16" rx="2" fill="#666"/>
+    <line x1="35" y1="40" x2="38" y2="60" stroke="#00ff88" stroke-width="2.5" stroke-dasharray="4,3"/>
+    <ellipse cx="50" cy="46" rx="16" ry="9" fill="#00ff88" opacity="0.2"/>
+    <line x1="5" y1="110" x2="115" y2="110" stroke="#444" stroke-width="3"/>
+  </svg>`,
+
+  flutterKick: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="68" width="110" height="10" rx="4" fill="#2a2a2a" stroke="#444" stroke-width="1"/>
+    <circle cx="20" cy="52" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="20" y1="61" x2="20" y2="80" stroke="#fff" stroke-width="2.5"/>
+    <line x1="5" y1="72" x2="35" y2="72" stroke="#fff" stroke-width="2"/>
+    <line x1="20" y1="72" x2="60" y2="68" stroke="#fff" stroke-width="2.5"/>
+    <line x1="60" y1="68" x2="95" y2="60" stroke="#00ff88" stroke-width="3"/>
+    <line x1="60" y1="68" x2="95" y2="78" stroke="#fff" stroke-width="2.5"/>
+    <ellipse cx="78" cy="63" rx="16" ry="7" fill="#00ff88" opacity="0.2"/>
+  </svg>`,
+
+  plank: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <line x1="5" y1="100" x2="115" y2="100" stroke="#444" stroke-width="3"/>
+    <circle cx="20" cy="55" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="20" y1="64" x2="20" y2="80" stroke="#fff" stroke-width="2"/>
+    <line x1="10" y1="80" x2="30" y2="80" stroke="#fff" stroke-width="2"/>
+    <line x1="20" y1="73" x2="95" y2="68" stroke="#fff" stroke-width="3"/>
+    <line x1="95" y1="68" x2="105" y2="82" stroke="#fff" stroke-width="2.5"/>
+    <line x1="95" y1="68" x2="110" y2="82" stroke="#fff" stroke-width="2.5"/>
+    <ellipse cx="55" cy="70" rx="30" ry="6" fill="#00ff88" opacity="0.15"/>
+  </svg>`,
+
+  russianTwist: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="35" r="9" fill="none" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="44" x2="60" y2="75" stroke="#fff" stroke-width="2.5"/>
+    <line x1="60" y1="58" x2="40" y2="52" stroke="#00ff88" stroke-width="3"/>
+    <circle cx="35" cy="50" r="7" fill="#555" stroke="#777" stroke-width="1.5"/>
+    <line x1="60" y1="75" x2="42" y2="95" stroke="#fff" stroke-width="2"/>
+    <line x1="60" y1="75" x2="78" y2="95" stroke="#fff" stroke-width="2"/>
+    <line x1="42" y1="95" x2="38" y2="112" stroke="#fff" stroke-width="2"/>
+    <line x1="78" y1="95" x2="82" y2="112" stroke="#fff" stroke-width="2"/>
+    <ellipse cx="60" cy="63" rx="16" ry="10" fill="#00ff88" opacity="0.2"/>
+  </svg>`
+};
+
+// ===== 운동 데이터베이스 (PDF 바프 루틴 기반) =====
+const EXERCISE_DB = {
+  // 하체
+  'inner-thigh': {
+    name: '이너타이 머신', nameEn: 'Inner Thigh / Adductor',
+    sets: '3세트', reps: '15개', rest: '60초',
+    target: ['내전근', '내측광근', '고관절'],
+    svg: SVG.innerThigh,
+    steps: [
+      '머신 시트에 앉아 등받이에 허리를 완전히 밀착시킵니다.',
+      '패드를 허벅지 안쪽에 위치시키고 발을 페달에 올립니다.',
+      '허벅지 안쪽 근육으로 패드를 천천히 모아줍니다 (2-3초).',
+      '완전히 모은 상태에서 1초 수축 후 천천히 원위치합니다.'
+    ],
+    tip: '반동을 쓰지 말고, 허벅지 안쪽이 당기는 느낌에 집중하세요. 완전히 벌릴 때 스트레칭 느낌을 즐기세요.'
   },
-  upper: {
-    title: '상체 루틴 - 등/어깨',
-    frequency: '주 3-4회',
-    options: [
-      {
-        name: '옵션 A',
-        exercises: [
-          { name: '턱걸이', reps: '12개', sets: '3세트', weight: '-' },
-          { name: '렛풀다운', reps: '12개', sets: '4세트', weight: '-' },
-          { name: '스미스머신 숄더프레스', reps: '12개', sets: '4세트', weight: '-' },
-          { name: '시티드로우 머신', reps: '15개', sets: '4세트', weight: '20kg' }
-        ]
-      },
-      {
-        name: '옵션 B',
-        exercises: [
-          { name: '티바로우', reps: '15개', sets: '4세트', weight: '2.5-5kg' },
-          { name: '어시스트 풀업', reps: '15개', sets: '4세트', weight: '42kg→36kg' },
-          { name: '스미스머신 숄더프레스', reps: '15개', sets: '4세트', weight: '빈바+양쪽1kg씩 증량' },
-          { name: '사이드 레터럴 레이즈', reps: '20개', sets: '4세트', weight: '2kg 웜업, 3kg 본운동' }
-        ]
-      },
-      {
-        name: '옵션 C (어깨 집중)',
-        exercises: [
-          { name: '사이드 레터럴 레이즈', reps: '20개', sets: '3세트', weight: '2kg' },
-          { name: '스텐딩 원암 숄더프레스', reps: '15개', sets: '1세트', weight: '3kg' },
-          { name: '스텐딩 투암 숄더프레스', reps: '12개', sets: '4세트', weight: '3-4kg' },
-          { name: '스미스 머신 숄더프레스(등받이 없이)', reps: '12개', sets: '3세트', weight: '-' },
-          { name: '덤벨 컬(팔)', reps: '15-20개', sets: '3세트', weight: '3kg' },
-          { name: '케이블 로프 푸쉬다운(삼두)', reps: '15-20개', sets: '3세트', weight: '10-15kg' }
-        ]
-      },
-      {
-        name: '옵션 D (등 집중)',
-        exercises: [
-          { name: '하이퍼 익스텐션 로우(언더그립)', reps: '15개', sets: '4세트', weight: '24kg (손바닥 하늘로)' },
-          { name: '바벨로우 언더그립', reps: '15개', sets: '2세트', weight: '수축지점 2초 정지' },
-          { name: '티바로우', reps: '15개', sets: '4세트', weight: '2.5-5kg (명치 아래로)' },
-          { name: '랫풀다운', reps: '15-12개', sets: '4세트', weight: '17kg 웜업, 24kg 본운동' },
-          { name: '랫풀다운(클로즈 그립)', reps: '12개', sets: '3세트', weight: '24kg' }
-        ]
-      },
-      {
-        name: '옵션 E (어깨+팔)',
-        exercises: [
-          { name: '사이드 레터럴 레이즈', reps: '15개', sets: '4세트', weight: '3kg' },
-          { name: '덤벨 숄더프레스', reps: '12개', sets: '3세트', weight: '-' },
-          { name: '스미스머신 숄더프레스(등받이 없이)', reps: '12개', sets: '3세트', weight: '양쪽 2.5kg' },
-          { name: '사이드 레터럴 레이즈(한번 더)', reps: '15개', sets: '3세트', weight: '3kg' },
-          { name: '덤벨 컬', reps: '15개', sets: '4세트', weight: '3kg 이상' },
-          { name: '케이블 푸쉬다운', reps: '15개', sets: '4세트', weight: '12kg' }
-        ]
-      }
-    ]
+  'outer-thigh': {
+    name: '아웃타이 머신', nameEn: 'Outer Thigh / Abductor',
+    sets: '3세트', reps: '15개', rest: '60초',
+    target: ['외전근', '중둔근', '대둔근'],
+    svg: SVG.outerThigh,
+    steps: [
+      '머신 시트에 앉아 등받이에 허리를 완전히 밀착시킵니다.',
+      '패드를 허벅지 바깥쪽에 위치시킵니다.',
+      '허벅지 바깥쪽 근육으로 패드를 천천히 벌려줍니다.',
+      '최대로 벌린 상태에서 1초 정지 후 천천히 원위치합니다.'
+    ],
+    tip: '무릎이 안으로 모이지 않도록 주의하세요. 외둔근과 중둔근에 집중하며 진행하세요.'
   },
-  abs: {
-    title: '복근 운동 (매일) - 넓은 골반 유형',
-    exercises: [
-      { name: '플러터킥(편도)', reps: '30개', sets: '3세트', weight: '-' },
-      { name: '하이플랭크 홀드', reps: '1분', sets: '1세트', weight: '-' },
-      { name: '러시안 트위스트(편도)', reps: '30개', sets: '3세트', weight: '-' }
-    ]
+  'smith-squat': {
+    name: '스미스 스쿼트', nameEn: 'Smith Machine Squat',
+    sets: '4세트', reps: '12개', rest: '90초',
+    target: ['대퇴사두근', '대둔근', '햄스트링'],
+    svg: SVG.squat,
+    steps: [
+      '발을 어깨 너비로 벌리고 스미스 머신 바를 승모근에 올립니다.',
+      '가슴을 펴고 코어에 힘을 준 상태로 천천히 앉습니다.',
+      '허벅지가 바닥과 평행이 될 때까지 내려갑니다 (무릎이 발끝 방향).',
+      '발뒤꿈치로 바닥을 밀며 천천히 올라옵니다.'
+    ],
+    tip: '무릎이 발끝보다 앞으로 나가지 않도록, 등이 굽지 않게 코어를 잡아주세요. 발끝과 무릎 방향을 일치시켜요.'
+  },
+  'glute-machine': {
+    name: '글루트 머신', nameEn: 'Glute Machine',
+    sets: '3세트', reps: '25개', rest: '60초',
+    target: ['대둔근', '중둔근', '햄스트링'],
+    svg: SVG.gluteMachine,
+    steps: [
+      '머신에 발판을 올리고 손잡이를 잡습니다. 지지하는 다리를 약간 구부립니다.',
+      '목표 다리를 뒤로 뻗어 둔근을 최대로 수축시킵니다 (1-2초).',
+      '엉덩이가 올라가거나 허리가 꺾이지 않게 주의합니다.',
+      '천천히 원위치로 돌아옵니다. 중량은 15kg에서 시작하세요.'
+    ],
+    tip: '둔근 수축에 완전히 집중하세요. 발끝이 아니라 뒤꿈치로 밀어내는 느낌으로 해야 둔근에 잘 들어와요.'
+  },
+  'leg-extension': {
+    name: '레그 익스텐션', nameEn: 'Leg Extension',
+    sets: '4세트', reps: '15개', rest: '60초',
+    target: ['대퇴사두근', '내측광근'],
+    svg: SVG.legExtension,
+    steps: [
+      '시트에 앉아 등을 등받이에 밀착, 패드를 발목 위에 위치시킵니다.',
+      '코어에 힘을 주고 무릎을 완전히 펴는 느낌으로 다리를 올립니다.',
+      '최고점에서 1-2초 수축 후 천천히 내려옵니다.',
+      '완전히 내리지 말고 약간 긴장 유지한 상태에서 반복합니다.'
+    ],
+    tip: '발끝을 몸쪽으로 당긴 채로 올리면 내측광근(무릎 안쪽)에 더 잘 자극이 와요. 너무 무거운 중량은 피하세요.'
+  },
+  'v-squat': {
+    name: '브이 스쿼트 머신', nameEn: 'V-Squat Machine',
+    sets: '4세트', reps: '15개', rest: '90초',
+    target: ['대퇴사두근', '대둔근', '내전근'],
+    svg: SVG.squat,
+    steps: [
+      '발을 어깨 너비로 벌리고 등을 패드에 완전히 밀착시킵니다.',
+      '손잡이를 잡고 코어에 힘을 주며 천천히 내려갑니다.',
+      '허벅지가 바닥과 평행이 될 때까지 앉습니다.',
+      '발뒤꿈치로 밀며 천천히 올라옵니다. 양쪽 10kg부터 시작하세요.'
+    ],
+    tip: '머신이 고정되어 있어 자세 안정성이 높아요. 발 위치를 약간 앞에 두면 둔근에 더 자극이 옵니다.'
+  },
+  'hip-press': {
+    name: '힙 프레스 / 포커스 힙프레스', nameEn: 'Hip Press',
+    sets: '4세트', reps: '15개', rest: '90초',
+    target: ['대둔근', '중둔근', '햄스트링'],
+    svg: SVG.hipPress,
+    steps: [
+      '머신에 앉아 등을 패드에 밀착하고 발을 발판 위에 올립니다.',
+      '무릎을 약간 바깥쪽으로 향하게 하고 코어에 힘을 줍니다.',
+      '발뒤꿈치로 발판을 밀어내며 골반을 앞으로 내밉니다.',
+      '최고점에서 둔근을 꽉 짜주고 천천히 원위치합니다. 깔리지 않게 주의!'
+    ],
+    tip: '80kg에서 시작하되 관리 불가한 무게는 피하세요. 둔근이 완전히 수축하는 느낌을 찾는 게 중요해요.'
+  },
+  'leg-curl': {
+    name: '레그 컬', nameEn: 'Leg Curl',
+    sets: '4세트', reps: '15개', rest: '60초',
+    target: ['햄스트링', '슬굴곡근', '비복근'],
+    svg: SVG.legCurl,
+    steps: [
+      '머신에 엎드려 패드를 발목 위에 위치시킵니다.',
+      '허리를 바닥에 밀착시키고 코어에 힘을 줍니다.',
+      '무릎을 구부려 발뒤꿈치를 엉덩이쪽으로 천천히 당겨옵니다.',
+      '최고점에서 1-2초 수축 후 천천히 내려갑니다. 30kg부터 시작하세요.'
+    ],
+    tip: '허리가 뜨지 않도록 주의하세요. 내릴 때 완전히 내리지 말고 약간 긴장을 유지한 채 반복합니다.'
+  },
+  'wide-squat': {
+    name: '와이드 스쿼트 (케틀벨)', nameEn: 'Wide Squat with Kettlebell',
+    sets: '3세트', reps: '20개', rest: '60초',
+    target: ['내전근', '대둔근', '대퇴사두근'],
+    svg: SVG.wideSquat,
+    steps: [
+      '발을 어깨 너비보다 훨씬 넓게 벌리고 발끝을 45도 바깥으로 향합니다.',
+      '케틀벨(12kg)을 양손으로 가슴 앞에 들고 코어에 힘을 줍니다.',
+      '무릎이 발끝 방향으로 향하도록 하며 천천히 깊게 앉습니다.',
+      '발뒤꿈치로 바닥을 밀며 천천히 올라오며 내전근을 수축합니다.'
+    ],
+    tip: '발끝과 무릎이 같은 방향을 향하는 게 핵심이에요. 내전근 스트레칭을 충분히 느끼면서 내려가세요.'
+  },
+  // 상체
+  'pullup': {
+    name: '턱걸이 (풀업)', nameEn: 'Pull-up',
+    sets: '3세트', reps: '12개', rest: '90초',
+    target: ['광배근', '이두근', '승모근'],
+    svg: SVG.pullup,
+    steps: [
+      '바를 어깨너비보다 약간 넓게 오버그립(손등 위)으로 잡습니다.',
+      '어깨를 내리고 코어에 힘을 준 채로 천천히 올라갑니다.',
+      '턱이 바 위로 올라올 때까지 당기고, 광배근 수축을 느낍니다.',
+      '천천히 컨트롤하며 완전히 팔이 펴질 때까지 내려갑니다.'
+    ],
+    tip: '반동을 쓰지 말고 광배근으로 당기는 느낌에 집중하세요. 어깨를 귀에서 멀리 내려야 광배근이 잘 자극돼요.'
+  },
+  'lat-pulldown': {
+    name: '렛풀다운', nameEn: 'Lat Pulldown',
+    sets: '4세트', reps: '12개', rest: '90초',
+    target: ['광배근', '이두근', '원형근'],
+    svg: SVG.latPulldown,
+    steps: [
+      '어깨너비보다 넓게 바를 오버그립으로 잡고 허벅지 패드에 다리를 고정합니다.',
+      '가슴을 살짝 내밀고 몸을 약간 뒤로 기울입니다.',
+      '팔꿈치를 갈비뼈 쪽으로 내리며 바를 쇄골 부근까지 당깁니다.',
+      '광배근 수축을 1초 유지 후 천천히 원위치합니다.'
+    ],
+    tip: '팔로 당기는 것이 아니라 팔꿈치를 등 뒤로 넣는 느낌으로 당겨야 광배근에 잘 들어옵니다.'
+  },
+  'smith-shoulder': {
+    name: '스미스 숄더프레스', nameEn: 'Smith Machine Shoulder Press',
+    sets: '4세트', reps: '12개', rest: '90초',
+    target: ['전면삼각근', '중간삼각근', '삼두근'],
+    svg: SVG.shoulderPress,
+    steps: [
+      '벤치를 90도로 세우고 바가 쇄골 앞에 오게 위치를 조절합니다.',
+      '어깨너비로 바를 잡고 코어에 힘을 줍니다.',
+      '바를 머리 위로 밀어 올리되 팔꿈치를 완전히 펴지 않습니다.',
+      '천천히 쇄골 위치까지 내려옵니다. 빈바에서 시작해 양쪽 1kg씩 증량하세요.'
+    ],
+    tip: '허리를 과도하게 젖히지 마세요. 코어를 강하게 잡고 어깨 근육으로만 밀어야 해요.'
+  },
+  'seated-row': {
+    name: '시티드로우 머신', nameEn: 'Seated Row Machine',
+    sets: '4세트', reps: '15개', rest: '90초',
+    target: ['광배근', '능형근', '후면삼각근'],
+    svg: SVG.seatedRow,
+    steps: [
+      '시트에 앉아 가슴 패드에 가슴을 밀착시킵니다.',
+      '손잡이를 잡고 어깨를 펴며 코어에 힘을 줍니다.',
+      '팔꿈치를 몸 쪽으로 당기며 등 근육을 수축시킵니다.',
+      '20kg에서 시작해 최대 수축 상태에서 1초 정지 후 천천히 내려갑니다.'
+    ],
+    tip: '당길 때 어깨가 앞으로 말리지 않도록, 가슴을 내밀면서 등을 수축하는 느낌으로 해야 해요.'
+  },
+  'tbar-row': {
+    name: '티바로우', nameEn: 'T-Bar Row',
+    sets: '4세트', reps: '15개', rest: '90초',
+    target: ['광배근', '능형근', '이두근'],
+    svg: SVG.tbarRow,
+    steps: [
+      '발을 양쪽에 위치시키고 허리를 펴고 약 45도 앞으로 숙입니다.',
+      '언더그립 또는 뉴트럴그립으로 바를 잡습니다.',
+      '팔꿈치를 뒤로 당기며 명치 아래쪽으로 바를 당깁니다.',
+      '2.5-5kg에서 시작해, 수축지점에서 2초 유지 후 내려옵니다.'
+    ],
+    tip: '명치 아래로 당기는 것이 포인트! 허리가 굽지 않게 유지하고, 목을 앞으로 내밀지 마세요.'
+  },
+  'lateral-raise': {
+    name: '사이드 레터럴 레이즈', nameEn: 'Side Lateral Raise',
+    sets: '4세트', reps: '15-20개', rest: '60초',
+    target: ['중간삼각근', '전면삼각근'],
+    svg: SVG.lateralRaise,
+    steps: [
+      '덤벨을 양손에 들고 자연스럽게 서서 코어를 잡습니다.',
+      '팔꿈치를 약간 구부린 채 양팔을 옆으로 어깨 높이까지 올립니다.',
+      '새끼손가락 쪽이 살짝 올라가는 느낌으로 들어야 중간 삼각근에 자극이 와요.',
+      '천천히 원위치합니다. 2kg 웜업 후 3kg 본운동으로 진행하세요.'
+    ],
+    tip: '반동을 쓰지 말고 팔꿈치 높이가 손목보다 높아야 해요. 너무 빠르게 하면 승모근이 개입되니 천천히!'
+  },
+  'standing-press': {
+    name: '스텐딩 숄더프레스', nameEn: 'Standing Shoulder Press',
+    sets: '4세트', reps: '12-15개', rest: '90초',
+    target: ['전면삼각근', '중간삼각근', '삼두근', '코어'],
+    svg: SVG.shoulderPress,
+    steps: [
+      '발을 어깨 너비로 벌리고 덤벨을 귀 옆 어깨 높이로 듭니다.',
+      '코어와 둔근에 힘을 주어 허리를 안정시킵니다.',
+      '덤벨을 머리 위로 밀어 올리되 팔을 완전히 펴지 않습니다.',
+      '천천히 어깨 높이로 내려오며 반복합니다. 3-4kg으로 진행하세요.'
+    ],
+    tip: '서서 하면 코어도 같이 단련돼요. 허리가 꺾이지 않도록 복부에 힘을 꽉 주고 하세요.'
+  },
+  'dumbbell-curl': {
+    name: '덤벨 컬 (팔 운동)', nameEn: 'Dumbbell Curl',
+    sets: '3세트', reps: '15-20개', rest: '60초',
+    target: ['이두근', '상완근'],
+    svg: SVG.dumbbellCurl,
+    steps: [
+      '덤벨을 양손에 들고 팔을 아래로 자연스럽게 뻗습니다.',
+      '팔꿈치를 몸에 고정하고 덤벨을 어깨 쪽으로 천천히 올립니다.',
+      '최고점에서 이두근을 꽉 짜주고 1초 유지합니다.',
+      '천천히 내려오며 반복합니다. 3kg으로 시작하세요.'
+    ],
+    tip: '팔꿈치가 앞뒤로 흔들리면 이두근이 아닌 다른 근육이 개입되요. 팔꿈치를 고정하는 게 핵심!'
+  },
+  'cable-pushdown': {
+    name: '케이블 푸쉬다운 (삼두)', nameEn: 'Cable Rope Pushdown',
+    sets: '3세트', reps: '15-20개', rest: '60초',
+    target: ['삼두근', '외측두근'],
+    svg: SVG.cablePushdown,
+    steps: [
+      '케이블 머신에 로프를 연결하고 로프 끝을 양손으로 잡습니다.',
+      '팔꿈치를 몸 옆에 고정하고 손목을 일자로 유지합니다.',
+      '삼두근으로 로프를 아래로 눌러 팔을 완전히 펴줍니다.',
+      '10-15kg, 손목을 일자로 유지하며 천천히 원위치합니다.'
+    ],
+    tip: '로프를 내릴 때 양 끝을 벌려주면 삼두근 전체가 더 강하게 수축돼요. 팔꿈치가 앞으로 나오면 안 돼요!'
+  },
+  'hyperext-row': {
+    name: '하이퍼 익스텐션 로우', nameEn: 'Hyperextension Row (Undergrip)',
+    sets: '4세트', reps: '15개', rest: '90초',
+    target: ['광배근', '척추기립근', '후면삼각근'],
+    svg: SVG.hyperExtension,
+    steps: [
+      '하이퍼익스텐션 머신에 엎드려 발을 고정합니다.',
+      '언더그립(손바닥을 하늘로)으로 24kg 바벨을 잡습니다.',
+      '등을 일자로 펴며 바벨을 당겨 광배근을 수축시킵니다.',
+      '수축 상태에서 1-2초 유지 후 천천히 내려갑니다.'
+    ],
+    tip: '손바닥을 하늘로 향하는 언더그립이 포인트! 광배근 하부와 등 전체에 강하게 자극이 와요.'
+  },
+  'barbell-row': {
+    name: '바벨로우 언더그립', nameEn: 'Barbell Row (Undergrip)',
+    sets: '2세트', reps: '15개', rest: '90초',
+    target: ['광배근', '이두근', '능형근'],
+    svg: SVG.barbelRow,
+    steps: [
+      '발을 어깨 너비로 벌리고 언더그립으로 바벨을 잡습니다.',
+      '허리를 45도 앞으로 숙이고 등을 일자로 유지합니다.',
+      '팔꿈치를 뒤로 당기며 바벨을 명치쪽으로 당깁니다.',
+      '수축지점에서 2초 정지 후 천천히 내려갑니다.'
+    ],
+    tip: '언더그립이면 이두근과 광배근 하부에 더 강하게 자극이 와요. 등이 굽지 않게 코어를 잡아야 해요.'
+  },
+  // 복근
+  'flutter-kick': {
+    name: '플러터킥', nameEn: 'Flutter Kick',
+    sets: '3세트', reps: '30개(편도)', rest: '30초',
+    target: ['하복부', '장요근', '대퇴직근'],
+    svg: SVG.flutterKick,
+    steps: [
+      '바닥에 누워 양손을 엉덩이 밑에 넣어 허리를 지지합니다.',
+      '두 다리를 바닥에서 약 15-20cm 들어 올립니다.',
+      '한 쪽씩 번갈아 위아래로 빠르게 차올립니다.',
+      '허리가 뜨거나 아프면 다리 높이를 더 올리세요. 30개 편도 × 3세트.'
+    ],
+    tip: '허리가 바닥에서 뜨지 않도록 항상 복부에 힘을 줘야 해요. 호흡은 내쉬면서 발을 찹니다.'
+  },
+  'high-plank': {
+    name: '하이플랭크 홀드', nameEn: 'High Plank Hold',
+    sets: '1세트', reps: '1분 홀드', rest: '30초',
+    target: ['코어 전체', '복횡근', '척추기립근', '어깨'],
+    svg: SVG.plank,
+    steps: [
+      '팔굽혀펴기 자세에서 팔을 완전히 펴고 손목이 어깨 바로 아래에 오게 합니다.',
+      '머리부터 발뒤꿈치까지 일직선이 되도록 몸을 펴줍니다.',
+      '복부를 천장 쪽으로 끌어당기는 느낌으로 코어를 잡습니다.',
+      '엉덩이가 위로 솟거나 처지지 않게 1분간 유지합니다.'
+    ],
+    tip: '코어가 버티기 힘들면 엉덩이를 살짝 조이면 더 쉬워요. 호흡은 멈추지 말고 계속 천천히 쉬세요.'
+  },
+  'russian-twist': {
+    name: '러시안 트위스트', nameEn: 'Russian Twist',
+    sets: '3세트', reps: '30개(편도)', rest: '30초',
+    target: ['복사근', '복직근', '코어'],
+    svg: SVG.russianTwist,
+    steps: [
+      '바닥에 앉아 무릎을 약 45도 구부리고 상체를 뒤로 약간 기울입니다.',
+      '두 손을 모아 가슴 앞에 두거나 가벼운 중량을 잡습니다.',
+      '복사근으로 상체를 좌우로 천천히 비틀어 줍니다.',
+      '한 쪽을 1개로 카운트하여 30개 편도 × 3세트 진행합니다.'
+    ],
+    tip: '속도보다 복사근의 수축 느낌이 중요해요. 다리를 들면 난이도가 올라가고 코어에 더 자극이 와요.'
+  },
+  // ===== 추가 운동 =====
+  'assisted-pullup': {
+    name: '어시스트 풀업', nameEn: 'Assisted Pull-up',
+    sets: '4세트', reps: '15개', rest: '90초',
+    target: ['광배근', '이두근', '승모근'],
+    svg: SVG.pullup,
+    steps: [
+      '어시스트 머신 무릎 패드에 무릎을 올리고 바를 어깨너비보다 약간 넓게 잡습니다.',
+      '42kg 어시스트로 시작하여 점차 36kg으로 줄여나갑니다.',
+      '광배근으로 몸을 끌어올려 턱이 바 위로 오게 합니다.',
+      '천천히 컨트롤하며 팔을 완전히 펴줍니다.'
+    ],
+    tip: '어시스트 무게를 줄일수록 난이도가 올라가요. 광배근 수축 느낌에 집중하세요. 42kg → 36kg 목표!'
+  },
+  'lat-pulldown-close': {
+    name: '랫풀다운 (클로즈 그립)', nameEn: 'Lat Pulldown Close Grip',
+    sets: '3세트', reps: '12개', rest: '90초',
+    target: ['광배근 하부', '이두근', '원형근'],
+    svg: SVG.latPulldown,
+    steps: [
+      '손 간격을 어깨너비로 좁게 잡고 앉아 허벅지 패드에 다리를 고정합니다.',
+      '상체를 살짝 뒤로 기울이고 가슴을 바 방향으로 내밉니다.',
+      '팔꿈치를 아래·뒤로 내리며 바를 쇄골 아래까지 당깁니다.',
+      '24kg으로 진행, 최대 수축 1초 유지 후 천천히 원위치합니다.'
+    ],
+    tip: '클로즈 그립은 광배근 하부에 더 강한 자극을 줘요. 어깨가 말리지 않게 가슴을 내밀어요.'
+  },
+  'dumbbell-shoulder': {
+    name: '덤벨 숄더프레스', nameEn: 'Dumbbell Shoulder Press',
+    sets: '4세트', reps: '12-15개', rest: '90초',
+    target: ['전면삼각근', '중간삼각근', '삼두근'],
+    svg: SVG.shoulderPress,
+    steps: [
+      '벤치에 앉거나 서서 덤벨을 귀 옆 어깨 높이로 듭니다.',
+      '팔꿈치가 약 90도가 되도록 위치를 조정합니다.',
+      '덤벨을 위로 밀어 올리되 머리 위에서 살짝 안쪽으로 모아줍니다.',
+      '천천히 원위치로 내려옵니다. 3-5kg으로 진행하세요.'
+    ],
+    tip: '바벨보다 자유로운 궤적으로 삼각근 전체를 자극할 수 있어요. 코어를 잡아 허리가 꺾이지 않게 하세요.'
+  },
+  'standing-onearm': {
+    name: '스텐딩 원암 숄더프레스', nameEn: 'Standing One-Arm Shoulder Press',
+    sets: '1세트 (웜업)', reps: '15개 (좌우)', rest: '30초',
+    target: ['전면삼각근', '중간삼각근', '코어'],
+    svg: SVG.shoulderPress,
+    steps: [
+      '덤벨(3kg) 하나를 한 손에 들고 서서 코어에 힘을 줍니다.',
+      '덤벨을 귀 옆 어깨 높이로 들어 올린 후 위로 밀어 올립니다.',
+      '반대쪽 팔은 몸 옆에 자연스럽게 내리거나 허리에 올립니다.',
+      '좌우 교대로 각 15회씩 진행합니다.'
+    ],
+    tip: '한 팔로 하면 코어 안정화에 더 효과적이에요. 본 운동 전 웜업 용도로 가볍게 진행하세요.'
+  },
+  'lateral-raise-b': {
+    name: '사이드 레터럴 레이즈 (마무리)', nameEn: 'Side Lateral Raise (Finisher)',
+    sets: '3세트', reps: '15개', rest: '60초',
+    target: ['중간삼각근', '전면삼각근'],
+    svg: SVG.lateralRaise,
+    steps: [
+      '덤벨(3kg)을 양손에 들고 자연스럽게 서서 코어를 잡습니다.',
+      '팔꿈치를 약간 구부린 채 양팔을 옆으로 어깨 높이까지 올립니다.',
+      '새끼손가락 쪽이 살짝 올라가는 느낌으로 들어야 중간 삼각근에 자극이 와요.',
+      '천천히 원위치합니다.'
+    ],
+    tip: '같은 동작을 세트 말미에 한번 더 해서 삼각근을 완전히 소진시켜요. 번아웃 세트로 활용하세요.'
   }
 };
 
-// ===== 2026 러닝 대회 데이터 =====
-const RUNNING_EVENTS = [
+// ===== 4주 운동 스케줄 (옵션 A~E 기반) =====
+const FOUR_WEEK_SCHEDULE = [
+  // ── 1주차: 기본 적응 ──
+  [
+    { day: '월', label: 'MON', emoji: '🦵', type: '하체 A', badge: '옵션A', exercises: ['inner-thigh','outer-thigh','smith-squat','glute-machine'], abs: true },
+    { day: '화', label: 'TUE', emoji: '🔙', type: '등/어깨 A', badge: '옵션A', exercises: ['pullup','lat-pulldown','smith-shoulder','seated-row'], abs: true },
+    { day: '수', label: 'WED', emoji: '💪', type: '등/어깨 B', badge: '옵션B', exercises: ['tbar-row','assisted-pullup','smith-shoulder','lateral-raise'], abs: true },
+    { day: '목', label: 'THU', emoji: '🌿', type: '휴식', badge: '회복', exercises: [], abs: false },
+    { day: '금', label: 'FRI', emoji: '🦵', type: '하체 B', badge: '옵션B', exercises: ['leg-extension','v-squat','hip-press','glute-machine'], abs: true },
+    { day: '토', label: 'SAT', emoji: '💪', type: '어깨/팔 C', badge: '옵션C', exercises: ['lateral-raise','standing-onearm','standing-press','smith-shoulder','dumbbell-curl','cable-pushdown'], abs: false },
+    { day: '일', label: 'SUN', emoji: '😴', type: '휴식', badge: '회복', exercises: [], abs: false }
+  ],
+  // ── 2주차: 강도 강화 ──
+  [
+    { day: '월', label: 'MON', emoji: '🦵', type: '하체 B', badge: '옵션B', exercises: ['leg-extension','v-squat','hip-press','glute-machine'], abs: true },
+    { day: '화', label: 'TUE', emoji: '🔙', type: '등 D', badge: '옵션D', exercises: ['hyperext-row','barbell-row','tbar-row','lat-pulldown','lat-pulldown-close'], abs: true },
+    { day: '수', label: 'WED', emoji: '💪', type: '어깨/팔 E', badge: '옵션E', exercises: ['lateral-raise','dumbbell-shoulder','smith-shoulder','lateral-raise-b','dumbbell-curl','cable-pushdown'], abs: true },
+    { day: '목', label: 'THU', emoji: '🌿', type: '휴식', badge: '회복', exercises: [], abs: false },
+    { day: '금', label: 'FRI', emoji: '🦵', type: '하체 C', badge: '옵션C', exercises: ['leg-curl','v-squat','hip-press','wide-squat'], abs: true },
+    { day: '토', label: 'SAT', emoji: '🔙', type: '등/어깨 A', badge: '옵션A', exercises: ['pullup','lat-pulldown','smith-shoulder','seated-row'], abs: false },
+    { day: '일', label: 'SUN', emoji: '😴', type: '휴식', badge: '회복', exercises: [], abs: false }
+  ],
+  // ── 3주차: 루틴 교체 ──
+  [
+    { day: '월', label: 'MON', emoji: '🦵', type: '하체 A', badge: '옵션A', exercises: ['inner-thigh','outer-thigh','smith-squat','glute-machine'], abs: true },
+    { day: '화', label: 'TUE', emoji: '🔙', type: '등/어깨 B', badge: '옵션B', exercises: ['tbar-row','assisted-pullup','smith-shoulder','lateral-raise'], abs: true },
+    { day: '수', label: 'WED', emoji: '🔙', type: '등 D', badge: '옵션D', exercises: ['hyperext-row','barbell-row','tbar-row','lat-pulldown','lat-pulldown-close'], abs: true },
+    { day: '목', label: 'THU', emoji: '🌿', type: '휴식', badge: '회복', exercises: [], abs: false },
+    { day: '금', label: 'FRI', emoji: '🦵', type: '하체 B', badge: '옵션B', exercises: ['leg-extension','v-squat','hip-press','glute-machine'], abs: true },
+    { day: '토', label: 'SAT', emoji: '💪', type: '어깨/팔 E', badge: '옵션E', exercises: ['lateral-raise','dumbbell-shoulder','smith-shoulder','lateral-raise-b','dumbbell-curl','cable-pushdown'], abs: false },
+    { day: '일', label: 'SUN', emoji: '😴', type: '휴식', badge: '회복', exercises: [], abs: false }
+  ],
+  // ── 4주차: 마무리 최대 강도 ──
+  [
+    { day: '월', label: 'MON', emoji: '🦵', type: '하체 C', badge: '옵션C', exercises: ['leg-curl','v-squat','hip-press','wide-squat'], abs: true },
+    { day: '화', label: 'TUE', emoji: '🔙', type: '등/어깨 A', badge: '옵션A', exercises: ['pullup','lat-pulldown','smith-shoulder','seated-row'], abs: true },
+    { day: '수', label: 'WED', emoji: '🔙', type: '등 D', badge: '옵션D', exercises: ['hyperext-row','barbell-row','tbar-row','lat-pulldown','lat-pulldown-close'], abs: true },
+    { day: '목', label: 'THU', emoji: '🌿', type: '휴식', badge: '회복', exercises: [], abs: false },
+    { day: '금', label: 'FRI', emoji: '🦵', type: '하체 B+C', badge: '복합', exercises: ['leg-extension','v-squat','hip-press','leg-curl','wide-squat'], abs: true },
+    { day: '토', label: 'SAT', emoji: '💪', type: '어깨/팔 E', badge: '옵션E', exercises: ['lateral-raise','dumbbell-shoulder','smith-shoulder','lateral-raise-b','dumbbell-curl','cable-pushdown'], abs: false },
+    { day: '일', label: 'SUN', emoji: '😴', type: '휴식', badge: '회복', exercises: [], abs: false }
+  ]
+];
+
+// 기존 코드 호환용 (첫 주차 기본값)
+const WEEKLY_SCHEDULE = FOUR_WEEK_SCHEDULE[0];
+
+const ABS_EXERCISES = ['flutter-kick','high-plank','russian-twist'];
+
+// ===== 식단 5단계 (바프 식단 기록 기반) =====
+const DIET_STAGES = [
   {
-    name: '서울마라톤 (동아마라톤)',
-    date: '2026-03-15',
-    location: '서울 광화문',
-    distances: ['full', 'half', '10k'],
-    distanceLabels: ['풀마라톤', '하프', '10K'],
-    url: 'http://donga-marathon.co.kr',
-    month: 3,
-    note: '국내 최대 마라톤 대회'
+    stage: 1, label: '1단계', duration: '6주간',
+    theme: '#00ff88',
+    tip: '기초 적응기 — 현미밥 기반으로 몸을 다이어트 모드에 서서히 적응시키는 단계예요.',
+    breakfast: ['현미밥 100g', '닭가슴살 100g', '방울토마토 5알', '양배추·브로콜리즙', 'MCT 오일 15ml'],
+    lunch:     ['현미밥 100g', '닭가슴살 100g', '방울토마토 5알', '양배추·브로콜리즙'],
+    dinner:    ['감자 100g', '닭가슴살 100g', '방울토마토 5알', '양배추·브로콜리즙'],
+    supplements: '유산균, 종합비타민'
   },
   {
-    name: '경주 벚꽃마라톤',
-    date: '2026-04-05',
-    location: '경북 경주',
-    distances: ['full', 'half', '10k', '5k'],
-    distanceLabels: ['풀마라톤', '하프', '10K', '5K'],
-    url: 'http://gjmarathon.co.kr',
-    month: 4,
-    note: '벚꽃 절정기 코스'
+    stage: 2, label: '2단계', duration: '4주간',
+    theme: '#60a5fa',
+    tip: '진행기 — 마늘즙·MCT 오일로 지방 연소 강화, 운동 후 프로틴으로 근육 회복 챙겨요.',
+    breakfast: ['현미밥 100g', '닭가슴살 100g', '방울토마토 5알', '마늘즙', 'MCT 오일 15ml', '운동 후 프로틴 음료'],
+    lunch:     ['현미밥 100g', '닭가슴살 100g', '방울토마토 5알', '마늘즙', 'MCT 오일 10ml', '운동 후 프로틴 음료'],
+    dinner:    ['현미밥 50g + 바나나 1개', '닭가슴살 100g', '방울토마토 5알', '마늘즙', '운동 후 프로틴 음료'],
+    supplements: '아침: 유산균·마그네슘 / 점심: 종합비타민·비타민C·오메가3 / 저녁: 마그네슘·비타민C'
   },
   {
-    name: '울산마라톤',
-    date: '2026-04-19',
-    location: '울산 태화강',
-    distances: ['full', 'half'],
-    distanceLabels: ['풀마라톤', '하프'],
-    url: 'https://www.ulsanmarathon.co.kr',
-    month: 4,
-    note: '태화강변 평탄 코스'
+    stage: 3, label: '3단계', duration: '2주간',
+    theme: '#ffc800',
+    tip: '강도 강화기 — 탄수화물을 줄이고 단백질을 유지해 체지방 연소에 집중하는 단계예요.',
+    breakfast: ['현미밥 50g', '닭가슴살 100g', '방울토마토 5알', 'MCT 오일 15ml'],
+    lunch:     ['감자 50g', '닭가슴살 100g', '방울토마토 5알', 'MCT 오일 10ml'],
+    dinner:    ['삶은 계란 4개 (노른자 3개)', '방울토마토 5알'],
+    supplements: '아침: 유산균·마그네슘 / 점심: 종합비타민·비타민C·오메가3 / 저녁: 마그네슘·비타민C'
   },
   {
-    name: '제주 국제마라톤',
-    date: '2026-05-17',
-    location: '제주 서귀포',
-    distances: ['full', 'half', '10k'],
-    distanceLabels: ['풀마라톤', '하프', '10K'],
-    url: 'https://www.jejumarathon.or.kr',
-    month: 5,
-    note: '제주도 자연 속 해안 코스'
+    stage: 4, label: '4단계', duration: '10일 (바프 전)',
+    theme: '#f97316',
+    tip: '카보로딩 — 근육에 글리코겐을 채워 최상의 컨디션을 만드는 바프 직전 단계예요.',
+    breakfast: ['닭가슴살 200g', '감자 130g', '유기농 치즈 1장'],
+    lunch:     ['닭가슴살 200g', '쌀밥 130g'],
+    dinner:    ['계란 3개 (노른자 1개 제거)', '운동 후 프로틴 음료'],
+    supplements: '아침: 유산균·오메가3·마그네슘 / 점심: 오메가3·멀티비타민·비타민C / 저녁: 마그네슘·철분제·타우린·밀크씨슬'
   },
   {
-    name: '강화 고려산 철쭉 마라톤',
-    date: '2026-05-03',
-    location: '인천 강화',
-    distances: ['half', '10k', '5k'],
-    distanceLabels: ['하프', '10K', '5K'],
-    url: 'https://www.ganghwamarathon.com',
-    month: 5,
-    note: '철쭉꽃 만발한 힐링 코스'
-  },
-  {
-    name: '서울 한강마라톤',
-    date: '2026-06-07',
-    location: '서울 한강',
-    distances: ['half', '10k', '5k'],
-    distanceLabels: ['하프', '10K', '5K'],
-    url: 'https://www.seoulmarathon.or.kr',
-    month: 6,
-    note: '한강변 야간 러닝 페스티벌'
-  },
-  {
-    name: '인천마라톤',
-    date: '2026-09-13',
-    location: '인천 송도',
-    distances: ['full', 'half', '10k'],
-    distanceLabels: ['풀마라톤', '하프', '10K'],
-    url: 'https://www.incheonmarathon.kr',
-    month: 9,
-    note: '가을 시즌 첫 대형 대회'
-  },
-  {
-    name: '춘천마라톤',
-    date: '2026-10-18',
-    location: '강원 춘천',
-    distances: ['full', 'half'],
-    distanceLabels: ['풀마라톤', '하프'],
-    url: 'https://chuncheonmarathon.co.kr',
-    month: 10,
-    note: '가을 단풍 속 국내 최고 코스'
-  },
-  {
-    name: '조선일보 춘천마라톤',
-    date: '2026-10-25',
-    location: '강원 춘천',
-    distances: ['full', 'half', '10k'],
-    distanceLabels: ['풀마라톤', '하프', '10K'],
-    url: 'https://chosunmarathon.co.kr',
-    month: 10,
-    note: '45년 전통 가을 대표 대회'
-  },
-  {
-    name: '대구마라톤',
-    date: '2026-10-11',
-    location: '대구 두류공원',
-    distances: ['full', 'half', '10k'],
-    distanceLabels: ['풀마라톤', '하프', '10K'],
-    url: 'https://www.daegumarathon.co.kr',
-    month: 10,
-    note: '대구 도심 순환 코스'
-  },
-  {
-    name: 'JTBC 서울마라톤',
-    date: '2026-11-01',
-    location: '서울 잠실',
-    distances: ['full', 'half', '10k'],
-    distanceLabels: ['풀마라톤', '하프', '10K'],
-    url: 'https://www.jtbcmarathon.com',
-    month: 11,
-    note: '한강+올림픽공원 코스'
-  },
-  {
-    name: '광주마라톤',
-    date: '2026-11-15',
-    location: '광주 월드컵경기장',
-    distances: ['full', 'half', '10k', '5k'],
-    distanceLabels: ['풀마라톤', '하프', '10K', '5K'],
-    url: 'https://www.gjmarathon.com',
-    month: 11,
-    note: '광주 도심 평탄 코스'
-  },
-  {
-    name: '부산마라톤',
-    date: '2026-11-22',
-    location: '부산 해운대',
-    distances: ['full', 'half', '10k'],
-    distanceLabels: ['풀마라톤', '하프', '10K'],
-    url: 'https://www.busanmarathon.co.kr',
-    month: 11,
-    note: '해운대~광안리 바다뷰 코스'
-  },
-  {
-    name: '중앙서울마라톤',
-    date: '2026-11-08',
-    location: '서울 여의도',
-    distances: ['full', 'half', '10k', '5k'],
-    distanceLabels: ['풀마라톤', '하프', '10K', '5K'],
-    url: 'https://joongang-marathon.com',
-    month: 11,
-    note: '여의도 한강공원 출발'
-  },
-  {
-    name: '제주마라톤 (겨울)',
-    date: '2026-12-13',
-    location: '제주시',
-    distances: ['full', 'half', '10k'],
-    distanceLabels: ['풀마라톤', '하프', '10K'],
-    url: 'https://www.jejumarathon.or.kr',
-    month: 12,
-    note: '따뜻한 제주 겨울 마라톤'
+    stage: 5, label: '5단계', duration: '4주 (유지기)',
+    theme: '#a78bfa',
+    tip: '유지기 — 오트밀·아스파라거스로 균형 잡힌 식단. 바프 후 몸 관리 단계예요.',
+    breakfast: ['오트밀 30g', '계란 2개', '유기농 치즈 1장'],
+    lunch:     ['닭가슴살 100g', '감자 100g', '아스파라거스 2줄'],
+    dinner:    ['닭가슴살 100g', '감자 100g', '아스파라거스 2줄'],
+    supplements: '아침: 유산균·오메가3·마그네슘 / 점심: 오메가3·멀티비타민·비타민C / 저녁: 오메가3·비타민C·마그네슘·철분제·타우린·밀크씨슬'
   }
 ];
 
@@ -267,1013 +757,701 @@ const MOTIVATION_QUOTES = [
   "세상에 후회하지 않는 운동은 있어도 후회하는 운동은 없어. 무조건 해.",
   "컨디션 핑계 대는 사람은 평생 컨디션이 안 좋아. 몸이 힘들수록 움직여야 해.",
   "지금 하기 싫은 걸 하는 사람이 나중에 하고 싶은 걸 할 수 있어.",
-  "포기하면 아무것도 안 변해. 힘들어도 이 순간을 버텨.",
   "남들이 쉴 때 나는 한 발짝 더 나아가는 거야. 그게 차이를 만들어.",
-  "몸이 변하는 건 어제의 내가 오늘 움직인 결과야. 내일의 나를 위해 지금 해.",
-  "딱 1세트만 해. 진짜 1세트만. 거기서 멈추면 돼. 근데 아마 못 멈출 걸?"
+  "딱 1세트만 해. 진짜 1세트만. 거기서 멈춰도 돼. 근데 아마 못 멈출 걸?"
 ];
 
-// ===== 컨디션별 운동 조언 =====
 const CONDITION_ADVICE = {
   1: "오늘은 몸이 정말 힘든 날이에요. 격한 운동 대신 10-15분 가벼운 스트레칭이나 산책을 추천해요. 충분한 수면과 수분 보충이 최우선이에요.",
   2: "컨디션이 좋지 않네요. 오늘은 강도를 평소의 60%로 낮추세요. 유산소 대신 가벼운 근력운동(세트 수 줄이기)으로 몸을 깨워보세요.",
   3: "보통 컨디션이에요. 평소 루틴대로 진행하되, 무리하지 말고 몸 상태를 체크하면서 운동하세요. 충분한 워밍업 잊지 마세요!",
   4: "컨디션 좋은데요! 오늘은 목표 중량보다 조금 더 도전해보세요. 강도를 5-10% 올려도 괜찮아요. 최대한 집중해서 진행해요!",
-  5: "오늘은 최고의 날이에요! 새로운 기록에 도전해보세요. 평소보다 세트 수를 1-2세트 추가하거나 중량을 올려봐요. 이런 날을 최대한 활용하세요!"
+  5: "오늘은 최고의 날이에요! 새로운 기록에 도전해보세요. 세트를 1-2개 추가하거나 중량을 올려봐요. 이런 날을 최대한 활용하세요!"
 };
 
-// ===== 증상별 추가 조언 =====
 const SYMPTOM_ADVICE = {
-  '근육통': '근육통이 있을 때는 아픈 부위 대신 다른 부위를 운동하세요. 가벼운 스트레칭과 폼롤러 마사지가 회복에 도움돼요.',
-  '관절통증': '관절 통증이 있다면 오늘은 무조건 쉬세요! 부상을 무시하고 운동하면 더 큰 문제가 생겨요.',
-  '수면부족': '수면 부족은 근육 회복을 방해해요. 오늘은 운동 강도를 낮추고 일찍 자는 것을 목표로 해요.',
-  '감기기운': '감기 기운이 있을 때는 땀 흘리는 운동을 피하세요. 집에서 가벼운 스트레칭 정도만 해요.',
+  '근육통': '근육통이 있을 때는 아픈 부위 대신 다른 부위를 운동하세요. 폼롤러 마사지가 도움이 돼요.',
+  '관절통증': '관절 통증이 있다면 오늘은 쉬세요! 부상을 무시하면 더 큰 문제가 생겨요.',
+  '수면부족': '수면 부족은 근육 회복을 방해해요. 강도를 낮추고 일찍 자는 것을 목표로 해요.',
+  '감기기운': '감기 기운이 있다면 땀 흘리는 운동은 피하세요. 가벼운 스트레칭만 해요.',
   '두통': '두통이 있다면 고강도 운동은 금물이에요. 물을 충분히 마시고 상태를 보며 결정하세요.',
-  '피로': '피로가 심하면 운동 전 5-10분 낮잠이 효과적이에요. 카페인 섭취 후 20-30분 뒤 운동도 좋아요.',
-  '스트레스': '스트레스에는 오히려 운동이 최고의 해소법! 20-30분 유산소로 엔도르핀을 분출해요.',
-  '의욕저하': '의욕이 없을 때는 좋아하는 음악을 틀고 옷만 갈아입어봐요. 시작이 반이에요!'
+  '피로': '피로할 때는 운동 전 5-10분 낮잠이 효과적이에요.',
+  '스트레스': '스트레스에는 유산소가 최고의 해소법! 20-30분 러닝으로 엔도르핀을 분출해요.',
+  '의욕저하': '의욕이 없을 땐 좋아하는 음악을 틀고 옷만 갈아입어봐요. 시작이 반이에요!'
 };
+
+// ===== 러닝 대회 =====
+const RUNNING_EVENTS = [
+  { name:'서울마라톤 (동아마라톤)', date:'2026-03-15', location:'서울 광화문', distances:['full','half','10k'], distanceLabels:['풀마라톤','하프','10K'], url:'http://donga-marathon.co.kr', month:3, note:'국내 최대 마라톤 대회' },
+  { name:'경주 벚꽃마라톤', date:'2026-04-05', location:'경북 경주', distances:['full','half','10k','5k'], distanceLabels:['풀마라톤','하프','10K','5K'], url:'http://gjmarathon.co.kr', month:4, note:'벚꽃 절정기 코스' },
+  { name:'울산마라톤', date:'2026-04-19', location:'울산 태화강', distances:['full','half'], distanceLabels:['풀마라톤','하프'], url:'https://www.ulsanmarathon.co.kr', month:4, note:'태화강변 평탄 코스' },
+  { name:'제주 국제마라톤', date:'2026-05-17', location:'제주 서귀포', distances:['full','half','10k'], distanceLabels:['풀마라톤','하프','10K'], url:'https://www.jejumarathon.or.kr', month:5, note:'제주도 해안 코스' },
+  { name:'강화 고려산 철쭉마라톤', date:'2026-05-03', location:'인천 강화', distances:['half','10k','5k'], distanceLabels:['하프','10K','5K'], url:'https://www.ganghwamarathon.com', month:5, note:'철쭉꽃 힐링 코스' },
+  { name:'서울 한강마라톤', date:'2026-06-07', location:'서울 한강', distances:['half','10k','5k'], distanceLabels:['하프','10K','5K'], url:'https://www.seoulmarathon.or.kr', month:6, note:'한강변 야간 러닝' },
+  { name:'인천마라톤', date:'2026-09-13', location:'인천 송도', distances:['full','half','10k'], distanceLabels:['풀마라톤','하프','10K'], url:'https://www.incheonmarathon.kr', month:9, note:'가을 시즌 첫 대형 대회' },
+  { name:'대구마라톤', date:'2026-10-11', location:'대구 두류공원', distances:['full','half','10k'], distanceLabels:['풀마라톤','하프','10K'], url:'https://www.daegumarathon.co.kr', month:10, note:'대구 도심 순환 코스' },
+  { name:'춘천마라톤', date:'2026-10-18', location:'강원 춘천', distances:['full','half'], distanceLabels:['풀마라톤','하프'], url:'https://chuncheonmarathon.co.kr', month:10, note:'가을 단풍 국내 최고 코스' },
+  { name:'조선일보 춘천마라톤', date:'2026-10-25', location:'강원 춘천', distances:['full','half','10k'], distanceLabels:['풀마라톤','하프','10K'], url:'https://chosunmarathon.co.kr', month:10, note:'45년 전통 가을 대표 대회' },
+  { name:'중앙서울마라톤', date:'2026-11-08', location:'서울 여의도', distances:['full','half','10k','5k'], distanceLabels:['풀마라톤','하프','10K','5K'], url:'https://joongang-marathon.com', month:11, note:'여의도 한강공원 출발' },
+  { name:'JTBC 서울마라톤', date:'2026-11-01', location:'서울 잠실', distances:['full','half','10k'], distanceLabels:['풀마라톤','하프','10K'], url:'https://www.jtbcmarathon.com', month:11, note:'한강+올림픽공원 코스' },
+  { name:'부산마라톤', date:'2026-11-22', location:'부산 해운대', distances:['full','half','10k'], distanceLabels:['풀마라톤','하프','10K'], url:'https://www.busanmarathon.co.kr', month:11, note:'해운대~광안리 바다뷰 코스' },
+  { name:'광주마라톤', date:'2026-11-15', location:'광주 월드컵경기장', distances:['full','half','10k','5k'], distanceLabels:['풀마라톤','하프','10K','5K'], url:'https://www.gjmarathon.com', month:11, note:'광주 도심 평탄 코스' },
+  { name:'제주마라톤 (겨울)', date:'2026-12-13', location:'제주시', distances:['full','half','10k'], distanceLabels:['풀마라톤','하프','10K'], url:'https://www.jejumarathon.or.kr', month:12, note:'따뜻한 제주 겨울 마라톤' }
+];
+
+// ===== UTILS =====
+function saveData(k,v){localStorage.setItem('ft_'+k,JSON.stringify(v));}
+function loadData(k){const d=localStorage.getItem('ft_'+k);return d?JSON.parse(d):null;}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function formatDate(s){const d=new Date(s);return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${['일','월','화','수','목','금','토'][d.getDay()]})`;}
+function getDDay(s){const t=new Date();t.setHours(0,0,0,0);const diff=Math.ceil((new Date(s)-t)/(864e5));if(diff<0)return{label:'종료',cls:'past'};if(diff===0)return{label:'D-DAY',cls:'soon'};if(diff<=30)return{label:`D-${diff}`,cls:'soon'};return{label:`D-${diff}`,cls:'future'};}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 // ===== 칼로리 계산 =====
-function calculateBMR(gender, weight, height, age) {
-  if (gender === 'female') {
-    return Math.round(10 * weight + 6.25 * height - 5 * age - 161);
-  } else {
-    return Math.round(10 * weight + 6.25 * height - 5 * age + 5);
-  }
-}
+function calcBMR(gender,w,h,a){return gender==='female'?Math.round(10*w+6.25*h-5*a-161):Math.round(10*w+6.25*h-5*a+5);}
+function calcTDEE(bmr,s,c){const t=s+c;const f=t<=2?1.375:t<=4?1.55:t<=6?1.725:1.9;return Math.round(bmr*f);}
+function calcTarget(tdee,cw,tw){const d=cw-tw;if(Math.abs(d)<0.5)return tdee;if(d>0)return Math.max(tdee-Math.round(d*7700/4/7),1200);return tdee+300;}
 
-function calculateTDEE(bmr, strengthDays, cardioDays) {
-  const totalDays = strengthDays + cardioDays;
-  let activityFactor = 1.2;
-  if (totalDays <= 2) activityFactor = 1.375;
-  else if (totalDays <= 4) activityFactor = 1.55;
-  else if (totalDays <= 6) activityFactor = 1.725;
-  else activityFactor = 1.9;
-  return Math.round(bmr * activityFactor);
-}
-
-function calculateTargetCalories(tdee, currentWeight, targetWeight, weeks = 4) {
-  const weightDiff = currentWeight - targetWeight;
-  if (Math.abs(weightDiff) < 0.5) return tdee; // 유지
-  if (weightDiff > 0) {
-    // 감량: 주당 0.3-0.5kg 감량 기준
-    const weeklyDeficit = Math.min((weightDiff / weeks) * 7700, 3500);
-    const dailyDeficit = Math.round(weeklyDeficit / 7);
-    return Math.max(tdee - dailyDeficit, 1200);
-  } else {
-    // 증량
-    return tdee + 300;
-  }
-}
-
-// ===== 주간 루틴 생성 =====
-function generateWeeklyRoutine(profile, goals) {
-  const { gender, bodyType } = profile;
-  const { strengthDays, cardioDays, strengthMin, cardioMin } = goals;
-  const totalDays = 7;
-  const days = ['월', '화', '수', '목', '금', '토', '일'];
-  const routine = [];
-
-  // PDF 루틴 사용 여부 (여성 + 바프 루틴 기반)
-  const useBarfRoutine = true; // PDF 루틴을 기본 베이스로 사용
-
-  // 운동 배치 계획
-  let plan = Array(7).fill('rest');
-  let sCount = 0, cCount = 0;
-
-  // 근력 배치 (간격 두기)
-  const sSlots = distributeEvenly(7, strengthDays);
-  const cSlots = distributeEvenly(7, cardioDays, sSlots);
-
-  sSlots.forEach(i => { plan[i] = 'strength'; });
-  cSlots.forEach(i => {
-    if (plan[i] === 'rest') plan[i] = 'cardio';
-    else plan[i] = 'both';
-  });
-
-  for (let i = 0; i < 7; i++) {
-    const dayType = plan[i];
-    const dayData = { day: days[i], type: dayType, content: [] };
-
-    if (dayType === 'strength' || dayType === 'both') {
-      // 하체/상체 번갈아 배치
-      sCount++;
-      if (sCount % 2 === 1) {
-        // 하체의 날
-        const optIdx = (Math.floor(sCount / 2)) % BARF_ROUTINES.lower.options.length;
-        dayData.content.push({
-          category: '하체 운동',
-          option: BARF_ROUTINES.lower.options[optIdx],
-          duration: strengthMin + '분',
-          abs: BARF_ROUTINES.abs
-        });
-      } else {
-        // 상체의 날
-        const optIdx = (Math.floor(sCount / 2) - 1) % BARF_ROUTINES.upper.options.length;
-        dayData.content.push({
-          category: '상체 운동 (등/어깨)',
-          option: BARF_ROUTINES.upper.options[optIdx],
-          duration: strengthMin + '분',
-          abs: BARF_ROUTINES.abs
-        });
-      }
-    }
-
-    if (dayType === 'cardio' || dayType === 'both') {
-      cCount++;
-      dayData.content.push({
-        category: '유산소 운동',
-        exercises: getCardioRoutine(gender, cardioMin, cCount)
-      });
-    }
-
-    routine.push(dayData);
-  }
-
-  return routine;
-}
-
-function distributeEvenly(total, count, exclude = []) {
-  const slots = [];
-  const gap = Math.floor(total / count);
-  let pos = Math.floor(gap / 2);
-  for (let i = 0; i < count; i++) {
-    while (exclude.includes(pos) && pos < total) pos++;
-    if (pos < total) slots.push(pos);
-    pos += gap;
-  }
-  return slots.slice(0, count);
-}
-
-function getCardioRoutine(gender, minutes, count) {
-  const routines = [
-    {
-      name: '인터벌 러닝',
-      detail: `워밍업 5분 → 빠르게 1분/천천히 2분 반복 → 쿨다운 5분 (총 ${minutes}분)`,
-      tip: '속도: 빠를 때 7-8km/h, 느릴 때 5-6km/h'
-    },
-    {
-      name: '스테디 러닝',
-      detail: `일정 속도로 ${minutes}분 지속 러닝`,
-      tip: '속도: 6-7km/h, 대화 가능한 페이스 유지'
-    },
-    {
-      name: '실내 사이클',
-      detail: `워밍업 5분 → 중강도 사이클 ${minutes - 10}분 → 쿨다운 5분`,
-      tip: '저항은 중간 정도, 분당 60-80rpm 유지'
-    },
-    {
-      name: '파워 워킹',
-      detail: `빠른 걷기 ${minutes}분 (경사도 3-5% 트레드밀 또는 야외)`,
-      tip: '팔 흔들기 적극적으로, 보폭 크게'
-    }
-  ];
-  return routines[(count - 1) % routines.length];
-}
-
-// ===== 식단 플랜 생성 =====
-function generateDietPlan(profile, goals, targetCal) {
-  const { gender, bodyType } = profile;
-  const proteinTarget = Math.round(profile.weight * 1.8); // 체중 1kg당 1.8g
-
-  const mealPlans = {
-    breakfast: {
-      title: '아침 (기상 후 1시간 이내)',
-      cal: Math.round(targetCal * 0.25),
-      items: gender === 'female'
-        ? ['닭가슴살 또는 계란 2개', '고구마 1개 (100g)', '채소 샐러드 (무드레싱)', '아메리카노 또는 물']
-        : ['계란 3개 (스크램블 또는 삶은)', '오트밀 또는 현미밥 1/2공기', '채소 샐러드', '단백질 쉐이크 (선택)'],
-      tip: '공복 상태에서 고단백 아침식사로 근육 분해 방지'
-    },
-    lunch: {
-      title: '점심',
-      cal: Math.round(targetCal * 0.35),
-      items: gender === 'female'
-        ? ['현미밥 2/3공기', '닭가슴살 구이 또는 생선구이 100g', '나물 반찬 2-3가지', '국 (저염)']
-        : ['현미밥 1공기', '소고기 또는 닭가슴살 150g', '삶은 채소', '두부 또는 콩류'],
-      tip: '탄수화물:단백질:지방 = 4:4:2 비율 목표'
-    },
-    preWorkout: {
-      title: '운동 전 간식 (운동 1-1.5시간 전)',
-      cal: Math.round(targetCal * 0.1),
-      items: ['바나나 1개 또는 고구마 소 1개', '아메리카노 (운동 30분 전)'],
-      tip: '빠른 에너지 공급을 위한 탄수화물 중심 간식'
-    },
-    dinner: {
-      title: '저녁 (운동 후 30-60분 이내)',
-      cal: Math.round(targetCal * 0.3),
-      items: gender === 'female'
-        ? ['현미밥 1/2공기 또는 생략', '닭가슴살 또는 두부 100g', '브로콜리, 아스파라거스 등 채소 듬뿍', '계란 1개 추가']
-        : ['현미밥 2/3공기', '소고기 or 닭가슴살 150-200g', '브로콜리 + 아스파라거스', '단백질 쉐이크 (선택)'],
-      tip: '운동 후 30분은 골든타임! 단백질 흡수율이 가장 높아요'
-    },
-    avoid: {
-      title: '피해야 할 음식',
-      items: ['밀가루 음식 (빵, 파스타, 라면)', '튀긴 음식', '과자, 초콜릿, 사탕', '탄산음료, 주스', '야식'],
-      tip: '완전 금지보다 주 1-2회 치팅데이로 스트레스 관리'
-    }
-  };
-
-  return { mealPlans, proteinTarget };
-}
-
-// ===== LocalStorage 유틸 =====
-function saveData(key, data) {
-  localStorage.setItem('ft_' + key, JSON.stringify(data));
-}
-function loadData(key) {
-  const d = localStorage.getItem('ft_' + key);
-  return d ? JSON.parse(d) : null;
-}
-
-// ===== 날짜 유틸 =====
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
-}
-function formatDate(str) {
-  const d = new Date(str);
-  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${['일','월','화','수','목','금','토'][d.getDay()]})`;
-}
-function getDDay(dateStr) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(dateStr);
-  const diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
-  if (diff < 0) return { label: '종료', cls: 'past' };
-  if (diff === 0) return { label: 'D-DAY', cls: 'soon' };
-  if (diff <= 30) return { label: `D-${diff}`, cls: 'soon' };
-  return { label: `D-${diff}`, cls: 'future' };
-}
-
-// ===== Toast =====
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// ===== 탭 전환 =====
-function initTabs() {
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.dataset.tab;
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
+// ===== 탭 초기화 =====
+function initTabs(){
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const tab=btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(s=>s.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById(tab).classList.add('active');
-      if (tab === 'plan') renderPlan();
-      if (tab === 'running') renderRunningEvents('all');
-      if (tab === 'progress') renderProgress();
-      if (tab === 'today') renderTodayRecords();
+      if(tab==='plan') renderPlanTab();
+      if(tab==='running') renderRunningEvents('all');
+      if(tab==='progress') renderProgress();
+      if(tab==='today') renderTodayRecords();
     });
   });
-
-  // 서브탭
-  document.querySelectorAll('.sub-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const subtab = btn.dataset.subtab;
-      document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.sub-tab-content').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.sub-tab-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const st=btn.dataset.subtab;
+      document.querySelectorAll('.sub-tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.sub-tab-content').forEach(s=>s.style.display='none');
       btn.classList.add('active');
-      document.getElementById('subtab-' + subtab).style.display = 'block';
+      document.getElementById('subtab-'+st).style.display='block';
     });
   });
 }
 
-// ===== 클릭 카드 선택 =====
-function initChoiceCards() {
-  document.querySelectorAll('.choice-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const group = card.dataset.group;
-      document.querySelectorAll(`[data-group="${group}"]`).forEach(c => c.classList.remove('active'));
+function initChoiceCards(){
+  document.querySelectorAll('.choice-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      document.querySelectorAll(`[data-group="${card.dataset.group}"]`).forEach(c=>c.classList.remove('active'));
       card.classList.add('active');
     });
   });
 }
 
-// ===== 주/시간 버튼 선택 =====
-function initPickers() {
-  ['strength-days', 'strength-min', 'cardio-days', 'cardio-min'].forEach(id => {
-    const container = document.getElementById(id);
-    if (!container) return;
-    container.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+function initPickers(){
+  ['strength-days','strength-min','cardio-days','cardio-min'].forEach(id=>{
+    const c=document.getElementById(id);
+    if(!c) return;
+    c.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        c.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
       });
     });
   });
 }
 
-// ===== 목표 설정 저장 =====
-function initGoalSave() {
-  // 목표 입력값 변경 시 미리보기
-  ['inp-weight', 'inp-target-weight', 'inp-bodyfat', 'inp-target-bodyfat'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('input', updateGoalPreview);
+// ===== 목표 저장 =====
+function initGoalSave(){
+  ['inp-weight','inp-target-weight','inp-bodyfat','inp-target-bodyfat'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('input',updateGoalPreview);
   });
-
-  document.getElementById('btn-save-goal').addEventListener('click', () => {
-    const gender = document.querySelector('[data-group="gender"].active')?.dataset.value;
-    const bodyType = document.querySelector('[data-group="bodyType"].active')?.dataset.value;
-    const age = parseInt(document.getElementById('inp-age').value);
-    const height = parseFloat(document.getElementById('inp-height').value);
-    const weight = parseFloat(document.getElementById('inp-weight').value);
-    const bodyfat = parseFloat(document.getElementById('inp-bodyfat').value);
-    const targetWeight = parseFloat(document.getElementById('inp-target-weight').value);
-    const targetBodyfat = parseFloat(document.getElementById('inp-target-bodyfat').value);
-    const startDate = document.getElementById('inp-start-date').value;
-    const strengthDays = parseInt(document.querySelector('#strength-days .active')?.dataset.val || 3);
-    const strengthMin = parseInt(document.querySelector('#strength-min .active')?.dataset.val || 60);
-    const cardioDays = parseInt(document.querySelector('#cardio-days .active')?.dataset.val || 3);
-    const cardioMin = parseInt(document.querySelector('#cardio-min .active')?.dataset.val || 30);
-
-    if (!gender) { showToast('성별을 선택해주세요!'); return; }
-    if (!bodyType) { showToast('체질을 선택해주세요!'); return; }
-    if (!age || !height || !weight) { showToast('나이, 키, 체중을 입력해주세요!'); return; }
-    if (!targetWeight) { showToast('목표 체중을 입력해주세요!'); return; }
-    if (!startDate) { showToast('시작일을 선택해주세요!'); return; }
-
-    const profile = { gender, bodyType, age, height, weight, bodyfat };
-    const goals = { targetWeight, targetBodyfat, startDate, strengthDays, strengthMin, cardioDays, cardioMin };
-
-    saveData('profile', profile);
-    saveData('goals', goals);
-
-    // 플랜 생성
-    const routine = generateWeeklyRoutine(profile, goals);
-    const bmr = calculateBMR(gender, weight, height, age);
-    const tdee = calculateTDEE(bmr, strengthDays, cardioDays);
-    const targetCal = calculateTargetCalories(tdee, weight, targetWeight);
-    const { mealPlans, proteinTarget } = generateDietPlan(profile, goals, targetCal);
-
-    saveData('plan', { routine, bmr, tdee, targetCal, proteinTarget, mealPlans });
-
+  document.getElementById('btn-save-goal').addEventListener('click',()=>{
+    const gender=document.querySelector('[data-group="gender"].active')?.dataset.value;
+    const bodyType=document.querySelector('[data-group="bodyType"].active')?.dataset.value;
+    const age=+document.getElementById('inp-age').value;
+    const height=+document.getElementById('inp-height').value;
+    const weight=+document.getElementById('inp-weight').value;
+    const bodyfat=+document.getElementById('inp-bodyfat').value;
+    const targetWeight=+document.getElementById('inp-target-weight').value;
+    const targetBodyfat=+document.getElementById('inp-target-bodyfat').value;
+    const startDate=document.getElementById('inp-start-date').value;
+    const strengthDays=+(document.querySelector('#strength-days .active')?.dataset.val||3);
+    const strengthMin=+(document.querySelector('#strength-min .active')?.dataset.val||60);
+    const cardioDays=+(document.querySelector('#cardio-days .active')?.dataset.val||3);
+    const cardioMin=+(document.querySelector('#cardio-min .active')?.dataset.val||30);
+    if(!gender){showToast('성별을 선택해주세요!');return;}
+    if(!bodyType){showToast('체질을 선택해주세요!');return;}
+    if(!age||!height||!weight){showToast('나이, 키, 체중을 입력해주세요!');return;}
+    if(!targetWeight){showToast('목표 체중을 입력해주세요!');return;}
+    if(!startDate){showToast('시작일을 선택해주세요!');return;}
+    const profile={gender,bodyType,age,height,weight,bodyfat};
+    const goals={targetWeight,targetBodyfat,startDate,strengthDays,strengthMin,cardioDays,cardioMin};
+    saveData('profile',profile);
+    saveData('goals',goals);
+    const bmr=calcBMR(gender,weight,height,age);
+    const tdee=calcTDEE(bmr,strengthDays,cardioDays);
+    const targetCal=calcTarget(tdee,weight,targetWeight);
+    const proteinTarget=Math.round(weight*1.8);
+    const mealPlans=generateMealPlans(gender,targetCal);
+    saveData('plan',{bmr,tdee,targetCal,proteinTarget,mealPlans});
     showToast('✨ 맞춤 플랜이 생성됐어요!');
     updateHeaderCountdown();
-
-    // 플랜 탭으로 이동
-    setTimeout(() => {
-      document.querySelector('[data-tab="plan"]').click();
-    }, 500);
+    setTimeout(()=>document.querySelector('[data-tab="plan"]').click(),500);
   });
 }
 
-function updateGoalPreview() {
-  const w = parseFloat(document.getElementById('inp-weight').value);
-  const tw = parseFloat(document.getElementById('inp-target-weight').value);
-  const bf = parseFloat(document.getElementById('inp-bodyfat').value);
-  const tbf = parseFloat(document.getElementById('inp-target-bodyfat').value);
-  const preview = document.getElementById('goal-preview');
+function updateGoalPreview(){
+  const w=+document.getElementById('inp-weight').value;
+  const tw=+document.getElementById('inp-target-weight').value;
+  const bf=+document.getElementById('inp-bodyfat').value;
+  const tbf=+document.getElementById('inp-target-bodyfat').value;
+  const p=document.getElementById('goal-preview');
+  if(!w||!tw){p.style.display='none';return;}
+  const diff=w-tw;
+  const dir=diff>0?'감량':diff<0?'증량':'유지';
+  let html=`🎯 4주 목표: <strong>${dir} ${Math.abs(diff).toFixed(1)}kg</strong> (주당 약 ${Math.abs(diff/4).toFixed(1)}kg)`;
+  if(bf&&tbf) html+=`<br>📊 체지방: ${bf}% → ${tbf}% (${Math.abs(bf-tbf).toFixed(1)}% ${bf>tbf?'감소':'증가'} 목표)`;
+  p.innerHTML=html;p.style.display='block';
+}
 
-  if (!w || !tw) { preview.style.display = 'none'; return; }
-  const diff = w - tw;
-  const direction = diff > 0 ? '감량' : diff < 0 ? '증량' : '유지';
-  const weeklyGoal = Math.abs(diff / 4).toFixed(1);
+// 체중 차이 기반 식단 단계 추천 (1주~4주 진행)
+function getRecommendedStageIndex(currentWeight, targetWeight) {
+  if (!currentWeight || !targetWeight) return 0;
+  const weeklyLoss = (currentWeight - targetWeight) / 4;
+  if (weeklyLoss <= 0) return 0;
+  if (weeklyLoss <= 0.3) return 0;      // 주 0.3kg 이하 → 1단계
+  if (weeklyLoss <= 0.5) return 1;      // 주 0.5kg 이하 → 2단계
+  return 2;                              // 주 0.5kg 초과 → 3단계
+}
 
-  let html = `🎯 4주 목표: <strong>${direction} ${Math.abs(diff).toFixed(1)}kg</strong> (주당 약 ${weeklyGoal}kg)`;
-  if (bf && tbf) {
-    html += `<br>📊 체지방률: ${bf}% → ${tbf}% (${(bf - tbf).toFixed(1)}% ${bf > tbf ? '감소' : '증가'} 목표)`;
-  }
-  preview.innerHTML = html;
-  preview.style.display = 'block';
+function generateMealPlans(_gender, cal) {
+  return { stageIndex: 0, cal };
 }
 
 // ===== 플랜 탭 렌더 =====
-function renderPlan() {
-  const plan = loadData('plan');
-  const planEmpty = document.getElementById('plan-empty');
-  const planContent = document.getElementById('plan-content');
+let selectedDayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+let selectedWeek = 0; // 0 = 1주차
 
-  if (!plan) {
-    planEmpty.style.display = 'block';
-    planContent.style.display = 'none';
+function renderPlanTab(){
+  const plan=loadData('plan');
+  const profile=loadData('profile');
+  const goals=loadData('goals');
+  const planEmpty=document.getElementById('plan-empty');
+  const planContent=document.getElementById('plan-content');
+  if(!plan){planEmpty.style.display='block';planContent.style.display='none';return;}
+  planEmpty.style.display='none';planContent.style.display='block';
+  document.getElementById('plan-bmr').textContent=plan.bmr?.toLocaleString()||'-';
+  document.getElementById('plan-target-cal').textContent=plan.targetCal?.toLocaleString()||'-';
+  document.getElementById('plan-protein').textContent=plan.proteinTarget||'-';
+  renderWeekSelector();
+  renderWeekDayGrid();
+  renderDayWorkout(selectedDayIndex);
+  // 식단 단계 자동 추천
+  const stageIdx = getRecommendedStageIndex(profile?.weight, goals?.targetWeight);
+  renderDietPlan(stageIdx, plan.targetCal);
+}
+
+function renderWeekSelector(){
+  const existing = document.getElementById('week-selector-wrap');
+  if(existing) existing.remove();
+  const grid = document.getElementById('week-day-grid');
+  const wrap = document.createElement('div');
+  wrap.id = 'week-selector-wrap';
+  wrap.className = 'week-selector-wrap';
+  const labels = ['1주차 · 기본 적응','2주차 · 강도 강화','3주차 · 루틴 교체','4주차 · 마무리'];
+  wrap.innerHTML = labels.map((l,i)=>`
+    <button class="week-select-btn${i===selectedWeek?' active':''}" onclick="selectWeek(${i})">
+      <span class="wsb-num">${i+1}주</span>
+      <span class="wsb-label">${l.split(' · ')[1]}</span>
+    </button>`).join('');
+  grid.parentNode.insertBefore(wrap, grid);
+}
+
+window.selectWeek=function(w){
+  selectedWeek=w;
+  selectedDayIndex=0; // 주차 변경 시 월요일로 리셋
+  renderWeekSelector();
+  renderWeekDayGrid();
+  renderDayWorkout(selectedDayIndex);
+};
+
+function renderWeekDayGrid(){
+  const schedule=FOUR_WEEK_SCHEDULE[selectedWeek];
+  const grid=document.getElementById('week-day-grid');
+  grid.innerHTML=schedule.map((d,i)=>`
+    <button class="week-day-btn${i===selectedDayIndex?' active':''}" onclick="selectDay(${i})">
+      <span class="day-label">${d.label}</span>
+      <span class="day-type">${d.emoji}</span>
+      <span class="day-name">${d.type}</span>
+    </button>`).join('');
+}
+
+window.selectDay=function(i){
+  selectedDayIndex=i;
+  renderWeekDayGrid();
+  renderDayWorkout(i);
+};
+
+function renderDayWorkout(i){
+  const sched=FOUR_WEEK_SCHEDULE[selectedWeek][i];
+  const container=document.getElementById('day-workout-view');
+  const savedChecks=loadData('exercise-checks')||{};
+  const dateKey=todayStr();
+
+  if(sched.exercises.length===0){
+    container.innerHTML=`
+      <div class="plan-day-header">
+        <div class="plan-day-title">${sched.emoji} ${sched.type}</div>
+        <div class="plan-day-meta">오늘은 충분히 쉬면서 근육을 회복시켜요 💚</div>
+      </div>
+      <div style="text-align:center;padding:32px 16px;color:rgba(255,255,255,0.4);">
+        <div style="font-size:48px;margin-bottom:12px;">😴</div>
+        <div style="font-size:14px;font-weight:600;">휴식도 운동의 일부입니다.<br>오늘은 스트레칭과 충분한 수분 보충!</div>
+      </div>`;
     return;
   }
 
-  planEmpty.style.display = 'none';
-  planContent.style.display = 'block';
+  // 완료 집계
+  const allIds=[...sched.exercises,...(sched.abs?ABS_EXERCISES:[])];
+  const checkKey=`${dateKey}-${i}`;
+  const checks=savedChecks[checkKey]||{};
+  const doneCount=Object.values(checks).filter(Boolean).length;
+  const totalCount=allIds.length;
+  const pct=totalCount>0?Math.round(doneCount/totalCount*100):0;
 
-  document.getElementById('plan-bmr').textContent = plan.bmr?.toLocaleString() || '-';
-  document.getElementById('plan-target-cal').textContent = plan.targetCal?.toLocaleString() || '-';
-  document.getElementById('plan-protein').textContent = plan.proteinTarget || '-';
+  const completionBanner=doneCount===totalCount&&totalCount>0?`
+    <div class="completion-banner show">
+      <span class="big-emoji">🎉</span>
+      <h3>오늘 운동 완료!</h3>
+      <p>정말 대단해요! 유산소도 잊지 마세요 💪</p>
+    </div>`:'';
 
-  renderWeeklyRoutine(plan.routine);
-  renderDietPlan(plan.mealPlans);
+  const exerciseCards=sched.exercises.map(id=>renderExerciseCard(id,checks[id]||false,checkKey)).join('');
+  const absHeader=sched.abs?`<div class="abs-section-header"><i class="fas fa-fire"></i> 복근 운동 (매일 꾸준히) — 넓은 골반 유형</div>`:'';
+  const absCards=sched.abs?ABS_EXERCISES.map(id=>renderExerciseCard(id,checks[id]||false,checkKey)).join(''):'';
+
+  container.innerHTML=`
+    <div class="plan-day-header">
+      <div class="plan-day-title">${sched.emoji} ${sched.type}</div>
+      <div class="plan-day-meta">${sched.exercises.length}개 동작 · 복근 ${sched.abs?'포함':'제외'}</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>오늘의 진행률</span>
+        <span>${doneCount} / ${totalCount} 완료</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:${pct}%"></div>
+      </div>
+    </div>
+    ${exerciseCards}
+    ${absHeader}
+    ${absCards}
+    ${completionBanner}`;
 }
 
-function renderWeeklyRoutine(routine) {
-  const container = document.getElementById('weekly-routine');
-  if (!routine) { container.innerHTML = ''; return; }
-
-  container.innerHTML = routine.map(day => {
-    if (day.type === 'rest') {
-      return `
-        <div class="routine-day">
-          <div class="routine-day-header">
-            <span>${day.day}요일</span>
-            <span>🌿 휴식</span>
+function renderExerciseCard(id, checked, checkKey){
+  const ex=EXERCISE_DB[id];
+  if(!ex) return '';
+  return `
+    <div class="exercise-card${checked?' checked':''}" id="excard-${id}">
+      <div class="exercise-card-top" onclick="toggleExpand('${id}')">
+        <div class="exercise-illus">${ex.svg}</div>
+        <div class="exercise-info">
+          <div class="exercise-name">${ex.name}</div>
+          <div class="exercise-name-en">${ex.nameEn}</div>
+          <div class="exercise-tags">
+            <span class="tag tag-sets">${ex.sets}</span>
+            <span class="tag tag-reps">${ex.reps}</span>
+            <span class="tag tag-rest">휴식 ${ex.rest}</span>
           </div>
-          <div class="routine-rest-day">충분한 휴식으로 근육 회복 & 성장 ✨ + 복근 운동은 매일!</div>
-        </div>`;
-    }
-
-    const contentHtml = day.content.map(c => {
-      if (c.category === '유산소 운동') {
-        return `
-          <div class="routine-option">
-            <div class="routine-option-title">🏃 ${c.category} (${c.exercises.duration || ''})</div>
-            <div style="font-size:13px;"><strong>${c.exercises.name}</strong></div>
-            <div style="font-size:12px;color:#6b7280;margin-top:4px;">${c.exercises.detail}</div>
-            <div style="font-size:11px;color:#9ca3af;margin-top:3px;">💡 ${c.exercises.tip}</div>
-          </div>`;
-      }
-
-      const option = c.option;
-      const absHtml = c.abs ? `
-        <div class="routine-option" style="border-left-color:#10b981;">
-          <div class="routine-option-title" style="color:#059669;">💪 ${c.abs.title}</div>
-          <table class="routine-exercise-table">
-            <thead><tr><th>운동</th><th>반복×세트</th></tr></thead>
-            <tbody>
-              ${c.abs.exercises.map(e => `<tr><td>${e.name}</td><td>${e.reps} × ${e.sets}</td></tr>`).join('')}
-            </tbody>
-          </table>
-        </div>` : '';
-
-      return `
-        <div class="routine-option">
-          <div class="routine-option-title">💪 ${c.category} · ${option.name} (${c.duration})</div>
-          <table class="routine-exercise-table">
-            <thead><tr><th>운동</th><th>반복×세트</th><th>중량/메모</th></tr></thead>
-            <tbody>
-              ${option.exercises.map(e => `<tr><td>${e.name}</td><td>${e.reps} × ${e.sets}</td><td style="color:#6b7280">${e.weight}</td></tr>`).join('')}
-            </tbody>
-          </table>
         </div>
-        ${absHtml}`;
-    }).join('');
-
-    const typeLabel = day.type === 'both' ? '근력 + 유산소' : day.type === 'strength' ? '근력 운동' : '유산소 운동';
-    return `
-      <div class="routine-day">
-        <div class="routine-day-header">
-          <span>${day.day}요일</span>
-          <span>${typeLabel}</span>
+        <button class="exercise-check${checked?' done':''}" onclick="toggleCheck(event,'${id}','${checkKey}')">
+          ${checked?'✓':'○'}
+        </button>
+      </div>
+      <div class="exercise-detail" id="detail-${id}">
+        <div class="exercise-detail-inner">
+          <div class="exercise-illus-large">${ex.svg}</div>
+          <div class="target-muscles">
+            <div class="target-label">타겟 근육</div>
+            <div class="muscle-tags">${ex.target.map(m=>`<span class="muscle-tag">${m}</span>`).join('')}</div>
+          </div>
+          <div class="steps-section">
+            <div class="steps-label">동작 방법</div>
+            ${ex.steps.map((s,i)=>`
+              <div class="step-item">
+                <span class="step-num">${i+1}</span>
+                <span class="step-text">${s}</span>
+              </div>`).join('')}
+          </div>
+          <div class="tip-box">${ex.tip}</div>
         </div>
-        <div class="routine-day-body">${contentHtml}</div>
-      </div>`;
-  }).join('');
+      </div>
+    </div>`;
 }
 
-function renderDietPlan(mealPlans) {
-  const container = document.getElementById('diet-plan');
-  if (!mealPlans) { container.innerHTML = ''; return; }
+window.toggleExpand=function(id){
+  const card=document.getElementById('excard-'+id);
+  card.classList.toggle('expanded');
+};
 
-  const colors = {
-    breakfast: '#7c3aed',
-    lunch: '#2563eb',
-    preWorkout: '#d97706',
-    dinner: '#059669',
-    avoid: '#dc2626'
-  };
+window.toggleCheck=function(e,id,checkKey){
+  e.stopPropagation();
+  const checks=loadData('exercise-checks')||{};
+  if(!checks[checkKey]) checks[checkKey]={};
+  checks[checkKey][id]=!checks[checkKey][id];
+  saveData('exercise-checks',checks);
+  renderDayWorkout(selectedDayIndex);
+};
 
-  container.innerHTML = Object.entries(mealPlans).map(([key, meal]) => `
-    <div class="diet-meal" style="border-left: 4px solid ${colors[key] || '#7c3aed'}">
-      <div class="diet-meal-title" style="color:${colors[key]}">${meal.title}</div>
-      <div class="diet-meal-items">${meal.items.map(i => `• ${i}`).join('<br>')}</div>
-      ${meal.cal ? `<div class="diet-meal-cal">약 ${meal.cal} kcal</div>` : ''}
-      ${meal.tip ? `<div style="font-size:11px;color:#9ca3af;margin-top:4px;">💡 ${meal.tip}</div>` : ''}
+function renderDietPlan(recommendedIdx, targetCal){
+  const container=document.getElementById('diet-plan');
+  if(!container) return;
+
+  // 주차별 식단 단계 진행 (3~4주차에는 한 단계 올라감)
+  const stageProgression = selectedWeek >= 2 ? Math.min(recommendedIdx + 1, DIET_STAGES.length - 1) : recommendedIdx;
+  const currentIdx = stageProgression;
+  const stage = DIET_STAGES[currentIdx];
+
+  const formula = targetCal
+    ? `<div class="diet-formula-box">📐 목표 섭취량 계산: <strong>기초대사량 × 1.3 − 500 kcal</strong><br>나의 목표 섭취량 <strong style="color:${stage.theme}">${targetCal.toLocaleString()} kcal</strong> / 일<br><small style="color:rgba(255,255,255,0.4)">주 −0.3kg 기준 공식 적용</small></div>`
+    : '';
+
+  // 단계 탭 선택 UI
+  const stageTabs = DIET_STAGES.map((s,i)=>`
+    <button class="diet-stage-btn${i===currentIdx?' active':''}" style="${i===currentIdx?`background:${s.theme}22;border-color:${s.theme};color:${s.theme}`:''}${i===recommendedIdx&&i!==currentIdx?' border-color:rgba(255,255,255,0.25);':''}" onclick="selectDietStage(${i})">
+      ${s.label}${i===recommendedIdx?'<span class="diet-rec-dot">추천</span>':''}
+    </button>`).join('');
+
+  const mealRows = [
+    {label:'🌅 아침', items: stage.breakfast},
+    {label:'☀️ 점심', items: stage.lunch},
+    {label:'🌙 저녁', items: stage.dinner},
+  ];
+
+  const mealHtml = mealRows.map(m=>`
+    <div class="diet-meal" style="border-left:3px solid ${stage.theme}">
+      <div class="diet-meal-title" style="color:${stage.theme}">${m.label}</div>
+      <div class="diet-meal-items">${m.items.map(it=>`• ${it}`).join('<br>')}</div>
     </div>`).join('');
+
+  container.innerHTML=`
+    ${formula}
+    <div class="diet-stage-info" style="border-color:${stage.theme}">
+      <div class="diet-stage-badge" style="background:${stage.theme}22;color:${stage.theme}">${stage.label} · ${stage.duration}</div>
+      <div class="diet-stage-tip">💡 ${stage.tip}</div>
+    </div>
+    <div class="diet-stage-tabs">${stageTabs}</div>
+    ${mealHtml}
+    <div class="diet-meal" style="border-left:3px solid #a78bfa">
+      <div class="diet-meal-title" style="color:#a78bfa">💊 영양제</div>
+      <div class="diet-meal-items">${stage.supplements}</div>
+    </div>
+    <div class="diet-avoid-box">
+      <div class="diet-avoid-title">🚫 피해야 할 음식</div>
+      <div class="diet-avoid-items">밀가루(빵·라면·파스타) · 튀긴 음식 · 과자·사탕 · 탄산음료·과일주스 · 야식</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">💡 완전 금지보다 주 1회 치팅데이로 스트레스 관리</div>
+    </div>`;
 }
 
-// ===== 오늘 기록 탭 =====
-function initTodayTab() {
-  // 날짜 표시
-  document.getElementById('today-date-label').textContent = formatDate(todayStr());
+window.selectDietStage=function(idx){
+  const plan=loadData('plan');
+  renderDietPlan(idx, plan?.targetCal);
+};
 
-  // 컨디션 슬라이더
-  const slider = document.getElementById('condition-slider');
-  slider.addEventListener('input', updateConditionDisplay);
+// ===== 오늘기록 탭 =====
+function initTodayTab(){
+  document.getElementById('today-date-label').textContent=formatDate(todayStr());
+  const slider=document.getElementById('condition-slider');
+  slider.addEventListener('input',updateConditionDisplay);
+  updateConditionDisplay();
+  document.getElementById('btn-save-condition').addEventListener('click',saveCondition);
+  document.getElementById('btn-add-workout').addEventListener('click',()=>{
+    const f=document.getElementById('workout-form-today');f.style.display=f.style.display==='none'?'block':'none';
+  });
+  document.getElementById('btn-cancel-workout').addEventListener('click',()=>document.getElementById('workout-form-today').style.display='none');
+  document.getElementById('btn-save-workout').addEventListener('click',saveWorkout);
+  document.getElementById('btn-add-meal').addEventListener('click',()=>{
+    const f=document.getElementById('meal-form-today');f.style.display=f.style.display==='none'?'block':'none';
+  });
+  document.getElementById('btn-cancel-meal').addEventListener('click',()=>document.getElementById('meal-form-today').style.display='none');
+  document.getElementById('btn-save-meal').addEventListener('click',saveMeal);
+  document.getElementById('btn-save-memo').addEventListener('click',()=>{
+    const log=getTodayLog();log.memo=document.getElementById('today-memo').value;saveTodayLog(log);showToast('메모 저장됐어요!');
+  });
+  document.querySelectorAll('.symptom-check input').forEach(el=>{
+    el.addEventListener('change',()=>updateConditionDisplay());
+  });
+}
+
+function updateConditionDisplay(){
+  const val=+document.getElementById('condition-slider').value;
+  const labels=['','😫 최악이에요','😕 별로에요','😐 보통이에요','😊 좋아요','🔥 최고예요!'];
+  const bgs=['','rgba(239,68,68,0.1)','rgba(249,115,22,0.1)','rgba(255,255,255,0.04)','rgba(16,185,129,0.1)','rgba(0,255,136,0.1)'];
+  const colors=['','#f87171','#fb923c','rgba(255,255,255,0.6)','#34d399','#00ff88'];
+  const d=document.getElementById('condition-display');
+  d.textContent=labels[val];d.style.background=bgs[val];d.style.color=colors[val];
+  const mb=document.getElementById('motivation-box');
+  if(val<=2){mb.textContent=MOTIVATION_QUOTES[Math.floor(Math.random()*MOTIVATION_QUOTES.length)];mb.style.display='block';}
+  else mb.style.display='none';
+  const checked=Array.from(document.querySelectorAll('.symptom-check input:checked')).map(e=>e.value);
+  let advice=CONDITION_ADVICE[val];
+  if(checked.length>0){const extra=checked.map(s=>SYMPTOM_ADVICE[s]).filter(Boolean);if(extra.length)advice+='\n\n⚠️ '+extra.join('\n');}
+  const ab=document.getElementById('advice-box');ab.style.whiteSpace='pre-line';ab.textContent=advice;
+}
+
+function getTodayLog(){const all=loadData('dailyLogs')||{};return all[todayStr()]||{workouts:[],meals:[],condition:3,symptoms:[],memo:''};}
+function saveTodayLog(log){const all=loadData('dailyLogs')||{};all[todayStr()]=log;saveData('dailyLogs',all);}
+
+function saveCondition(){
+  const val=+document.getElementById('condition-slider').value;
+  const symptoms=Array.from(document.querySelectorAll('.symptom-check input:checked')).map(e=>e.value);
+  const log=getTodayLog();log.condition=val;log.symptoms=symptoms;saveTodayLog(log);showToast('컨디션 저장됐어요!');
+}
+
+function saveWorkout(){
+  const type=document.getElementById('wt-type').value;
+  const dur=+document.getElementById('wt-duration').value;
+  const cal=+document.getElementById('wt-calories').value;
+  const notes=document.getElementById('wt-notes').value;
+  if(!type||!dur){showToast('운동 종류와 시간을 입력해주세요!');return;}
+  const log=getTodayLog();
+  log.workouts.push({id:Date.now(),type,duration:dur,calories:cal||0,notes,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})});
+  saveTodayLog(log);
+  ['wt-type','wt-duration','wt-calories','wt-notes'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('workout-form-today').style.display='none';
+  renderTodayRecords();showToast('운동 기록됐어요! 💪');
+}
+
+function saveMeal(){
+  const type=document.getElementById('ml-type').value;
+  const name=document.getElementById('ml-name').value;
+  const cal=+document.getElementById('ml-calories').value;
+  const notes=document.getElementById('ml-notes').value;
+  if(!type||!name||!cal){showToast('식사 종류, 음식명, 칼로리를 입력해주세요!');return;}
+  const log=getTodayLog();
+  log.meals.push({id:Date.now(),type,name,calories:cal,notes,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})});
+  saveTodayLog(log);
+  ['ml-type','ml-name','ml-calories','ml-notes'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('meal-form-today').style.display='none';
+  renderTodayRecords();showToast('식사 기록됐어요! 🍽️');
+}
+
+function renderTodayRecords(){
+  const log=getTodayLog();
+  if(log.condition) document.getElementById('condition-slider').value=log.condition;
+  document.querySelectorAll('.symptom-check input').forEach(el=>{el.checked=log.symptoms?.includes(el.value);});
+  if(log.memo) document.getElementById('today-memo').value=log.memo;
   updateConditionDisplay();
 
-  // 컨디션 저장
-  document.getElementById('btn-save-condition').addEventListener('click', saveCondition);
-
-  // 운동 추가
-  document.getElementById('btn-add-workout').addEventListener('click', () => {
-    const form = document.getElementById('workout-form-today');
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-  });
-  document.getElementById('btn-cancel-workout').addEventListener('click', () => {
-    document.getElementById('workout-form-today').style.display = 'none';
-  });
-  document.getElementById('btn-save-workout').addEventListener('click', saveWorkout);
-
-  // 식사 추가
-  document.getElementById('btn-add-meal').addEventListener('click', () => {
-    const form = document.getElementById('meal-form-today');
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-  });
-  document.getElementById('btn-cancel-meal').addEventListener('click', () => {
-    document.getElementById('meal-form-today').style.display = 'none';
-  });
-  document.getElementById('btn-save-meal').addEventListener('click', saveMeal);
-
-  // 메모 저장
-  document.getElementById('btn-save-memo').addEventListener('click', () => {
-    const memo = document.getElementById('today-memo').value;
-    const log = getTodayLog();
-    log.memo = memo;
-    saveTodayLog(log);
-    showToast('메모가 저장됐어요!');
-  });
-}
-
-function updateConditionDisplay() {
-  const val = parseInt(document.getElementById('condition-slider').value);
-  const display = document.getElementById('condition-display');
-  const motivBox = document.getElementById('motivation-box');
-  const adviceBox = document.getElementById('advice-box');
-
-  const labels = ['', '😫 최악이에요', '😕 별로에요', '😐 보통이에요', '😊 좋아요', '🔥 최고예요!'];
-  const colors = ['', '#fee2e2', '#fef3c7', '#f3f4f6', '#d1fae5', '#ede9fe'];
-  const textColors = ['', '#991b1b', '#92400e', '#374151', '#065f46', '#5b21b6'];
-
-  display.textContent = labels[val];
-  display.style.background = colors[val];
-  display.style.color = textColors[val];
-
-  // 동기부여 멘트 (컨디션 1-2)
-  if (val <= 2) {
-    const idx = Math.floor(Math.random() * MOTIVATION_QUOTES.length);
-    motivBox.textContent = MOTIVATION_QUOTES[idx];
-    motivBox.style.display = 'block';
-  } else {
-    motivBox.style.display = 'none';
-  }
-
-  // 운동 조언
-  adviceBox.textContent = CONDITION_ADVICE[val];
-
-  // 증상 체크에 따른 추가 조언
-  updateSymptomAdvice(val);
-}
-
-function updateSymptomAdvice(conditionVal) {
-  const adviceBox = document.getElementById('advice-box');
-  const checked = Array.from(document.querySelectorAll('.symptom-check input:checked')).map(el => el.value);
-
-  let advice = CONDITION_ADVICE[conditionVal];
-  if (checked.length > 0) {
-    const extra = checked.map(s => SYMPTOM_ADVICE[s]).filter(Boolean);
-    if (extra.length > 0) {
-      advice += '\n\n⚠️ 오늘 특이사항:\n' + extra.join('\n');
-    }
-  }
-  adviceBox.style.whiteSpace = 'pre-line';
-  adviceBox.textContent = advice;
-}
-
-function getTodayLog() {
-  const all = loadData('dailyLogs') || {};
-  return all[todayStr()] || { workouts: [], meals: [], condition: 3, symptoms: [], memo: '' };
-}
-
-function saveTodayLog(log) {
-  const all = loadData('dailyLogs') || {};
-  all[todayStr()] = log;
-  saveData('dailyLogs', all);
-}
-
-function saveCondition() {
-  const val = parseInt(document.getElementById('condition-slider').value);
-  const symptoms = Array.from(document.querySelectorAll('.symptom-check input:checked')).map(el => el.value);
-  const log = getTodayLog();
-  log.condition = val;
-  log.symptoms = symptoms;
-  saveTodayLog(log);
-  showToast('컨디션이 저장됐어요!');
-}
-
-function saveWorkout() {
-  const type = document.getElementById('wt-type').value;
-  const duration = parseInt(document.getElementById('wt-duration').value);
-  const calories = parseInt(document.getElementById('wt-calories').value);
-  const notes = document.getElementById('wt-notes').value;
-
-  if (!type || !duration) { showToast('운동 종류와 시간을 입력해주세요!'); return; }
-
-  const log = getTodayLog();
-  log.workouts.push({ id: Date.now(), type, duration, calories: calories || 0, notes, time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) });
-  saveTodayLog(log);
-
-  document.getElementById('wt-type').value = '';
-  document.getElementById('wt-duration').value = '';
-  document.getElementById('wt-calories').value = '';
-  document.getElementById('wt-notes').value = '';
-  document.getElementById('workout-form-today').style.display = 'none';
-
-  renderTodayRecords();
-  showToast('운동이 기록됐어요! 💪');
-}
-
-function saveMeal() {
-  const type = document.getElementById('ml-type').value;
-  const name = document.getElementById('ml-name').value;
-  const calories = parseInt(document.getElementById('ml-calories').value);
-  const notes = document.getElementById('ml-notes').value;
-
-  if (!type || !name || !calories) { showToast('식사 종류, 음식명, 칼로리를 입력해주세요!'); return; }
-
-  const log = getTodayLog();
-  log.meals.push({ id: Date.now(), type, name, calories, notes, time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) });
-  saveTodayLog(log);
-
-  document.getElementById('ml-type').value = '';
-  document.getElementById('ml-name').value = '';
-  document.getElementById('ml-calories').value = '';
-  document.getElementById('ml-notes').value = '';
-  document.getElementById('meal-form-today').style.display = 'none';
-
-  renderTodayRecords();
-  showToast('식사가 기록됐어요! 🍽️');
-}
-
-function renderTodayRecords() {
-  const log = getTodayLog();
-
-  // 컨디션 슬라이더 복원
-  if (log.condition) {
-    document.getElementById('condition-slider').value = log.condition;
-    updateConditionDisplay();
-  }
-  // 증상 복원
-  document.querySelectorAll('.symptom-check input').forEach(el => {
-    el.checked = log.symptoms?.includes(el.value);
-  });
-  // 메모 복원
-  if (log.memo) document.getElementById('today-memo').value = log.memo;
-
-  // 운동 목록
-  const workoutList = document.getElementById('workout-list-today');
-  if (log.workouts.length === 0) {
-    workoutList.innerHTML = '<div style="color:#9ca3af;font-size:13px;padding:10px 0;">아직 운동 기록이 없어요</div>';
-  } else {
-    workoutList.innerHTML = log.workouts.map(w => `
+  const wl=document.getElementById('workout-list-today');
+  wl.innerHTML=log.workouts.length===0?'<div style="color:rgba(255,255,255,0.3);font-size:13px;padding:10px 0;">아직 운동 기록이 없어요</div>':
+    log.workouts.map(w=>`
       <div class="record-item">
         <div class="record-item-info">
           <div class="record-item-type">${w.type}</div>
-          <div class="record-item-detail">${w.duration}분${w.calories ? ` · ${w.calories}kcal` : ''} · ${w.time}</div>
-          ${w.notes ? `<div class="record-item-note">${w.notes}</div>` : ''}
+          <div class="record-item-detail">${w.duration}분${w.calories?` · ${w.calories}kcal`:''} · ${w.time}</div>
+          ${w.notes?`<div class="record-item-note">${w.notes}</div>`:''}
         </div>
         <button class="btn-delete" onclick="deleteWorkout(${w.id})"><i class="fas fa-trash"></i></button>
       </div>`).join('');
-  }
 
-  // 식사 목록
-  const mealList = document.getElementById('meal-list-today');
-  const totalCal = log.meals.reduce((s, m) => s + (m.calories || 0), 0);
-  const burnedCal = log.workouts.reduce((s, w) => s + (w.calories || 0), 0);
-  const plan = loadData('plan');
-  const targetCal = plan?.targetCal || 0;
-
-  if (log.meals.length === 0) {
-    mealList.innerHTML = '<div style="color:#9ca3af;font-size:13px;padding:10px 0;">아직 식사 기록이 없어요</div>';
-  } else {
-    mealList.innerHTML = log.meals.map(m => `
+  const ml=document.getElementById('meal-list-today');
+  ml.innerHTML=log.meals.length===0?'<div style="color:rgba(255,255,255,0.3);font-size:13px;padding:10px 0;">아직 식사 기록이 없어요</div>':
+    log.meals.map(m=>`
       <div class="record-item">
         <div class="record-item-info">
           <div class="record-item-type">${m.type} · ${m.name}</div>
           <div class="record-item-detail">${m.calories}kcal · ${m.time}</div>
-          ${m.notes ? `<div class="record-item-note">${m.notes}</div>` : ''}
+          ${m.notes?`<div class="record-item-note">${m.notes}</div>`:''}
         </div>
         <button class="btn-delete" onclick="deleteMeal(${m.id})"><i class="fas fa-trash"></i></button>
       </div>`).join('');
-  }
 
-  // 칼로리 요약
-  const summary = document.getElementById('calorie-today-summary');
-  if (log.meals.length > 0 || log.workouts.length > 0) {
-    const net = totalCal - burnedCal;
-    const remaining = targetCal ? targetCal - totalCal : null;
-    summary.innerHTML = `
+  const totalCal=log.meals.reduce((s,m)=>s+(m.calories||0),0);
+  const burnedCal=log.workouts.reduce((s,w)=>s+(w.calories||0),0);
+  const plan=loadData('plan');const targetCal=plan?.targetCal||0;
+  const sumEl=document.getElementById('calorie-today-summary');
+  if(log.meals.length>0||log.workouts.length>0){
+    const net=totalCal-burnedCal;const rem=targetCal?targetCal-totalCal:null;
+    sumEl.innerHTML=`
       <div class="cal-today-item"><div class="cal-today-val">${totalCal.toLocaleString()}</div><div class="cal-today-label">섭취 kcal</div></div>
-      <div class="cal-today-item"><div class="cal-today-val" style="color:#f97316">${burnedCal.toLocaleString()}</div><div class="cal-today-label">소모 kcal</div></div>
-      <div class="cal-today-item"><div class="cal-today-val" style="color:#7c3aed">${net.toLocaleString()}</div><div class="cal-today-label">순 kcal</div></div>
-      ${remaining !== null ? `<div class="cal-today-item"><div class="cal-today-val" style="color:${remaining >= 0 ? '#059669' : '#dc2626'}">${Math.abs(remaining).toLocaleString()}</div><div class="cal-today-label">${remaining >= 0 ? '목표 여유' : '목표 초과'}</div></div>` : ''}
-    `;
-  } else {
-    summary.innerHTML = '';
-  }
+      <div class="cal-today-item"><div class="cal-today-val" style="color:#fb923c">${burnedCal.toLocaleString()}</div><div class="cal-today-label">소모 kcal</div></div>
+      <div class="cal-today-item"><div class="cal-today-val" style="color:#60a5fa">${net.toLocaleString()}</div><div class="cal-today-label">순 kcal</div></div>
+      ${rem!==null?`<div class="cal-today-item"><div class="cal-today-val" style="color:${rem>=0?'#34d399':'#f87171'}">${Math.abs(rem).toLocaleString()}</div><div class="cal-today-label">${rem>=0?'목표 여유':'목표 초과'}</div></div>`:''}`;
+  } else sumEl.innerHTML='';
 }
 
-window.deleteWorkout = function(id) {
-  const log = getTodayLog();
-  log.workouts = log.workouts.filter(w => w.id !== id);
-  saveTodayLog(log);
-  renderTodayRecords();
-  showToast('운동 기록이 삭제됐어요');
-};
+window.deleteWorkout=function(id){const log=getTodayLog();log.workouts=log.workouts.filter(w=>w.id!==id);saveTodayLog(log);renderTodayRecords();showToast('삭제됐어요');};
+window.deleteMeal=function(id){const log=getTodayLog();log.meals=log.meals.filter(m=>m.id!==id);saveTodayLog(log);renderTodayRecords();showToast('삭제됐어요');};
 
-window.deleteMeal = function(id) {
-  const log = getTodayLog();
-  log.meals = log.meals.filter(m => m.id !== id);
-  saveTodayLog(log);
-  renderTodayRecords();
-  showToast('식사 기록이 삭제됐어요');
-};
-
-// 증상 변경 시 조언 업데이트
-function initSymptomListeners() {
-  document.querySelectorAll('.symptom-check input').forEach(el => {
-    el.addEventListener('change', () => {
-      const val = parseInt(document.getElementById('condition-slider').value);
-      updateSymptomAdvice(val);
-    });
-  });
-}
-
-// ===== 러닝 대회 탭 =====
-function renderRunningEvents(monthFilter) {
-  const list = document.getElementById('running-events-list');
-  const events = monthFilter === 'all'
-    ? RUNNING_EVENTS
-    : RUNNING_EVENTS.filter(e => e.month === parseInt(monthFilter));
-
-  if (events.length === 0) {
-    list.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-xmark"></i><p>해당 월에 등록된 대회가 없어요</p></div>';
-    return;
-  }
-
-  // D-DAY 계산 후 정렬
-  const sorted = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  list.innerHTML = sorted.map(e => {
-    const dday = getDDay(e.date);
-    const distBadges = e.distances.map((d, i) => {
-      const cls = d === 'full' ? 'full' : d === 'half' ? 'half' : d === '10k' ? 'ten' : 'five';
+// ===== 러닝 대회 =====
+function renderRunningEvents(monthFilter){
+  const list=document.getElementById('running-events-list');
+  const events=monthFilter==='all'?RUNNING_EVENTS:RUNNING_EVENTS.filter(e=>e.month===+monthFilter);
+  if(!events.length){list.innerHTML='<div class="empty-state"><i class="fas fa-calendar-xmark"></i><p>해당 월에 등록된 대회가 없어요</p></div>';return;}
+  const sorted=[...events].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  list.innerHTML=sorted.map(e=>{
+    const dd=getDDay(e.date);
+    const d=new Date(e.date);
+    const badges=e.distances.map((dist,i)=>{
+      const cls=dist==='full'?'full':dist==='half'?'half':dist==='10k'?'ten':'five';
       return `<span class="distance-badge ${cls}">${e.distanceLabels[i]}</span>`;
     }).join('');
-
-    const dateObj = new Date(e.date);
-    const dateLabel = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일`;
-
     return `
       <a class="event-card" href="${e.url}" target="_blank" rel="noopener noreferrer">
         <div class="event-card-header">
           <div class="event-name">${e.name}</div>
-          <div class="event-dday ${dday.cls}">${dday.label}</div>
+          <div class="event-dday ${dd.cls}">${dd.label}</div>
         </div>
         <div class="event-meta">
-          <span><i class="fas fa-calendar"></i> ${dateLabel}</span>
-          <span><i class="fas fa-location-dot"></i> ${e.location}</span>
+          <span><i class="fas fa-calendar"></i>${d.getMonth()+1}월 ${d.getDate()}일</span>
+          <span><i class="fas fa-location-dot"></i>${e.location}</span>
         </div>
-        <div class="event-distance">${distBadges}</div>
-        ${e.note ? `<div style="font-size:11px;color:#9ca3af;margin-top:6px;">💡 ${e.note}</div>` : ''}
+        <div class="event-distance">${badges}</div>
+        ${e.note?`<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;">💡 ${e.note}</div>`:''}
       </a>`;
   }).join('');
 }
 
-function initRunningFilter() {
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderRunningEvents(btn.dataset.month);
+function initRunningFilter(){
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');renderRunningEvents(btn.dataset.month);
     });
   });
 }
 
-// ===== 진행현황 탭 =====
-function renderProgress() {
-  renderFourWeekProgress();
-  renderGoals();
-  renderHistory();
-}
+// ===== 진행현황 =====
+function renderProgress(){renderFourWeekProgress();renderGoals();renderHistory();}
 
-function renderFourWeekProgress() {
-  const goals = loadData('goals');
-  const container = document.getElementById('four-week-progress');
-
-  if (!goals) {
-    container.innerHTML = '<div class="empty-state">목표설정 탭에서 설정 후 확인하세요.</div>';
-    return;
-  }
-
-  const start = new Date(goals.startDate);
-  const today = new Date();
-  const elapsed = Math.floor((today - start) / (1000 * 60 * 60 * 24));
-  const currentWeek = Math.min(Math.ceil(elapsed / 7), 4);
-
-  const weeks = [1, 2, 3, 4];
-  const weekBadges = weeks.map(w => {
-    const cls = w < currentWeek ? 'done' : w === currentWeek ? 'current' : '';
-    const icon = w < currentWeek ? '✅' : w === currentWeek ? '🔥' : '⏳';
-    return `<div class="week-badge ${cls}"><div class="week-num">${icon}</div>${w}주차${w === currentWeek ? '<br><small>진행 중</small>' : ''}</div>`;
+function renderFourWeekProgress(){
+  const goals=loadData('goals');const c=document.getElementById('four-week-progress');
+  if(!goals){c.innerHTML='<div class="empty-state">목표설정 탭에서 설정 후 확인하세요.</div>';return;}
+  const start=new Date(goals.startDate);const today=new Date();
+  const elapsed=Math.floor((today-start)/864e5);const cw=Math.min(Math.ceil(elapsed/7),4);
+  const badges=[1,2,3,4].map(w=>{
+    const cls=w<cw?'done':w===cw?'current':'';
+    const icon=w<cw?'✅':w===cw?'🔥':'⏳';
+    return `<div class="week-badge ${cls}"><div class="week-num">${icon}</div>${w}주차${w===cw?'<br><small style="font-size:9px;">진행중</small>':''}</div>`;
   }).join('');
-
-  const progressPct = Math.min(Math.round((elapsed / 28) * 100), 100);
-
-  container.innerHTML = `
-    <div class="week-progress-grid">${weekBadges}</div>
-    <div style="background:#e5e7eb;border-radius:8px;height:10px;margin:12px 0;">
-      <div style="background:linear-gradient(90deg,#7c3aed,#ec4899);height:100%;border-radius:8px;width:${progressPct}%;transition:width 0.5s;"></div>
+  const pct=Math.min(Math.round(elapsed/28*100),100);
+  c.innerHTML=`
+    <div class="week-progress-grid">${badges}</div>
+    <div style="background:rgba(255,255,255,0.06);border-radius:6px;height:8px;margin:12px 0;">
+      <div style="background:linear-gradient(90deg,#00ff88,#00d4aa);height:100%;border-radius:6px;width:${pct}%;box-shadow:0 0 8px rgba(0,255,136,0.3);transition:width .5s;"></div>
     </div>
     <div class="progress-info">
       📅 시작일: <strong>${formatDate(goals.startDate)}</strong><br>
-      ⏰ 진행: <strong>${Math.max(elapsed, 0)}일 경과 / 28일</strong> (${progressPct}%)<br>
-      ⚖️ 목표: <strong>${goals.targetWeight}kg</strong> (현재 ${loadData('profile')?.weight || '-'}kg)<br>
-      📊 목표 체지방: <strong>${goals.targetBodyfat || '-'}%</strong>
+      ⏰ 진행: <strong>${Math.max(elapsed,0)}일 경과 / 28일</strong> (${pct}%)<br>
+      ⚖️ 목표 체중: <strong>${goals.targetWeight}kg</strong><br>
+      📊 목표 체지방: <strong>${goals.targetBodyfat||'-'}%</strong>
     </div>`;
 }
 
-// ===== 목표 (한달/주간/하루) =====
-function initGoalManagement() {
-  // 한달
-  document.getElementById('btn-add-monthly').addEventListener('click', () => toggleForm('monthly-form'));
-  document.getElementById('btn-cancel-monthly').addEventListener('click', () => toggleForm('monthly-form', false));
-  document.getElementById('btn-save-monthly').addEventListener('click', () => saveGoalItem('monthly'));
-
-  // 주간
-  document.getElementById('btn-add-weekly').addEventListener('click', () => toggleForm('weekly-form'));
-  document.getElementById('btn-cancel-weekly').addEventListener('click', () => toggleForm('weekly-form', false));
-  document.getElementById('btn-save-weekly').addEventListener('click', () => saveGoalItem('weekly'));
-
-  // 하루
-  document.getElementById('btn-add-daily').addEventListener('click', () => toggleForm('daily-form'));
-  document.getElementById('btn-cancel-daily').addEventListener('click', () => toggleForm('daily-form', false));
-  document.getElementById('btn-save-daily').addEventListener('click', () => saveGoalItem('daily'));
-}
-
-function toggleForm(id, show = null) {
-  const el = document.getElementById(id);
-  el.style.display = (show === null ? el.style.display === 'none' : !show) ? 'block' : 'none';
-}
-
-function saveGoalItem(type) {
-  const textEl = document.getElementById(`${type}-goal-text`);
-  const text = textEl.value.trim();
-  if (!text) { showToast('목표를 입력해주세요!'); return; }
-
-  const goals = loadData(`${type}Goals`) || [];
-  goals.unshift({ id: Date.now(), text, done: false, created: todayStr() });
-  saveData(`${type}Goals`, goals);
-  textEl.value = '';
-  document.getElementById(`${type}-form`).style.display = 'none';
-  renderGoals();
-  showToast('목표가 추가됐어요!');
-}
-
-function renderGoals() {
-  ['monthly', 'weekly', 'daily'].forEach(type => {
-    const goals = loadData(`${type}Goals`) || [];
-    const list = document.getElementById(`${type}-goals-list`);
-    if (goals.length === 0) {
-      list.innerHTML = `<div style="color:#9ca3af;font-size:13px;padding:10px 0;">${type === 'monthly' ? '이달의' : type === 'weekly' ? '이번 주' : '오늘의'} 목표를 추가해보세요!</div>`;
-    } else {
-      list.innerHTML = goals.map(g => `
-        <div class="goal-item ${g.done ? 'done' : ''}" id="goal-${g.id}">
-          <input type="checkbox" class="goal-checkbox" ${g.done ? 'checked' : ''} onchange="toggleGoal('${type}', ${g.id})">
-          <span class="goal-text">${g.text}</span>
-          <button class="btn-delete-goal" onclick="deleteGoal('${type}', ${g.id})"><i class="fas fa-times"></i></button>
-        </div>`).join('');
-    }
+function initGoalManagement(){
+  ['monthly','weekly','daily'].forEach(type=>{
+    document.getElementById(`btn-add-${type}`).addEventListener('click',()=>{
+      const f=document.getElementById(`${type}-form`);f.style.display=f.style.display==='none'?'block':'none';
+    });
+    document.getElementById(`btn-cancel-${type}`).addEventListener('click',()=>document.getElementById(`${type}-form`).style.display='none');
+    document.getElementById(`btn-save-${type}`).addEventListener('click',()=>{
+      const el=document.getElementById(`${type}-goal-text`);const text=el.value.trim();
+      if(!text){showToast('목표를 입력해주세요!');return;}
+      const goals=loadData(`${type}Goals`)||[];
+      goals.unshift({id:Date.now(),text,done:false});
+      saveData(`${type}Goals`,goals);el.value='';
+      document.getElementById(`${type}-form`).style.display='none';
+      renderGoals();showToast('목표가 추가됐어요!');
+    });
   });
 }
 
-window.toggleGoal = function(type, id) {
-  const goals = loadData(`${type}Goals`) || [];
-  const g = goals.find(g => g.id === id);
-  if (g) g.done = !g.done;
-  saveData(`${type}Goals`, goals);
-  renderGoals();
-};
-
-window.deleteGoal = function(type, id) {
-  let goals = loadData(`${type}Goals`) || [];
-  goals = goals.filter(g => g.id !== id);
-  saveData(`${type}Goals`, goals);
-  renderGoals();
-  showToast('목표가 삭제됐어요');
-};
-
-// ===== 히스토리 =====
-function renderHistory() {
-  const logs = loadData('dailyLogs') || {};
-  const list = document.getElementById('history-list');
-  const dates = Object.keys(logs).sort((a, b) => b.localeCompare(a));
-
-  if (dates.length === 0) {
-    list.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>아직 기록된 데이터가 없어요.<br>오늘 기록 탭에서 기록을 시작하세요!</p></div>';
-    return;
-  }
-
-  const conditionEmoji = { 1: '😫', 2: '😕', 3: '😐', 4: '😊', 5: '🔥' };
-
-  list.innerHTML = dates.map(date => {
-    const log = logs[date];
-    const workoutCount = log.workouts?.length || 0;
-    const totalCal = log.meals?.reduce((s, m) => s + (m.calories || 0), 0) || 0;
-    const burnedCal = log.workouts?.reduce((s, w) => s + (w.calories || 0), 0) || 0;
-
-    return `
-      <div class="history-item">
-        <div class="history-date-header">
-          <span>${formatDate(date)}</span>
-          <span class="history-condition">${conditionEmoji[log.condition || 3]} 컨디션 ${log.condition || '-'}/5</span>
-        </div>
-        <div class="history-body">
-          ${workoutCount > 0 ? `💪 운동 ${workoutCount}건 (${burnedCal}kcal 소모)<br>` : ''}
-          ${totalCal > 0 ? `🍽️ 식사 ${log.meals?.length || 0}건 (${totalCal.toLocaleString()}kcal 섭취)<br>` : ''}
-          ${log.symptoms?.length > 0 ? `⚠️ 증상: ${log.symptoms.join(', ')}<br>` : ''}
-          ${log.memo ? `📝 "${log.memo}"` : ''}
-          ${!workoutCount && !totalCal && !log.memo ? '기록 없음' : ''}
-        </div>
-      </div>`;
-  }).join('');
+function renderGoals(){
+  ['monthly','weekly','daily'].forEach(type=>{
+    const goals=loadData(`${type}Goals`)||[];
+    const list=document.getElementById(`${type}-goals-list`);
+    list.innerHTML=goals.length===0?`<div style="color:rgba(255,255,255,0.25);font-size:13px;padding:10px 0;">목표를 추가해보세요!</div>`:
+      goals.map(g=>`
+        <div class="goal-item${g.done?' done':''}" id="goal-${g.id}">
+          <input type="checkbox" class="goal-checkbox"${g.done?' checked':''} onchange="toggleGoal('${type}',${g.id})">
+          <span class="goal-text">${g.text}</span>
+          <button class="btn-delete-goal" onclick="deleteGoal('${type}',${g.id})"><i class="fas fa-times"></i></button>
+        </div>`).join('');
+  });
 }
 
-// ===== 헤더 카운트다운 =====
-function updateHeaderCountdown() {
-  const goals = loadData('goals');
-  const header = document.getElementById('header-countdown');
-  if (!goals?.startDate) {
-    header.textContent = '목표를 설정하고 변화를 시작하세요';
-    return;
-  }
-  const start = new Date(goals.startDate);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 28);
-  const today = new Date();
-  const remaining = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-  if (remaining <= 0) {
-    header.textContent = '🎉 4주 챌린지 완료!';
-  } else {
-    const elapsed = Math.max(0, Math.floor((today - start) / (1000 * 60 * 60 * 24)));
-    header.textContent = `🔥 D+${elapsed} · 종료까지 ${remaining}일 남았어요`;
-  }
+window.toggleGoal=function(type,id){
+  const goals=loadData(`${type}Goals`)||[];const g=goals.find(g=>g.id===id);if(g)g.done=!g.done;
+  saveData(`${type}Goals`,goals);renderGoals();
+};
+window.deleteGoal=function(type,id){
+  saveData(`${type}Goals`,(loadData(`${type}Goals`)||[]).filter(g=>g.id!==id));renderGoals();showToast('삭제됐어요');
+};
+
+function renderHistory(){
+  const logs=loadData('dailyLogs')||{};const list=document.getElementById('history-list');
+  const dates=Object.keys(logs).sort((a,b)=>b.localeCompare(a));
+  const emoji={1:'😫',2:'😕',3:'😐',4:'😊',5:'🔥'};
+  list.innerHTML=dates.length===0?
+    '<div class="empty-state"><i class="fas fa-history"></i><p>아직 기록된 데이터가 없어요.<br>오늘 기록 탭에서 시작하세요!</p></div>':
+    dates.map(date=>{
+      const log=logs[date];
+      const wc=log.workouts?.length||0;const tc=log.meals?.reduce((s,m)=>s+(m.calories||0),0)||0;
+      const bc=log.workouts?.reduce((s,w)=>s+(w.calories||0),0)||0;
+      return `
+        <div class="history-item">
+          <div class="history-date-header">
+            <span>${formatDate(date)}</span>
+            <span class="history-condition">${emoji[log.condition||3]} ${log.condition||'-'}/5</span>
+          </div>
+          <div class="history-body">
+            ${wc>0?`💪 운동 ${wc}건 (${bc}kcal)<br>`:''}
+            ${tc>0?`🍽️ 식사 ${log.meals?.length||0}건 (${tc.toLocaleString()}kcal)<br>`:''}
+            ${log.symptoms?.length?`⚠️ ${log.symptoms.join(', ')}<br>`:''}
+            ${log.memo?`📝 "${log.memo}"`:''}
+            ${!wc&&!tc&&!log.memo?'기록 없음':''}
+          </div>
+        </div>`;
+    }).join('');
 }
 
-// ===== 저장된 데이터 복원 =====
-function restoreProfile() {
-  const profile = loadData('profile');
-  const goals = loadData('goals');
-  if (!profile || !goals) return;
+function updateHeaderCountdown(){
+  const goals=loadData('goals');const h=document.getElementById('header-countdown');
+  if(!goals?.startDate){h.textContent='목표를 설정하고 변화를 시작하세요';return;}
+  const end=new Date(goals.startDate);end.setDate(end.getDate()+28);
+  const elapsed=Math.max(0,Math.floor((new Date()-new Date(goals.startDate))/864e5));
+  const rem=Math.ceil((end-new Date())/864e5);
+  h.textContent=rem<=0?'🎉 4주 챌린지 완료!':`🔥 D+${elapsed} · 종료까지 ${rem}일 남았어요`;
+}
 
-  // 성별
-  const genderCard = document.querySelector(`[data-group="gender"][data-value="${profile.gender}"]`);
-  if (genderCard) genderCard.classList.add('active');
-
-  // 체질
-  const bodyCard = document.querySelector(`[data-group="bodyType"][data-value="${profile.bodyType}"]`);
-  if (bodyCard) bodyCard.classList.add('active');
-
-  // 숫자 입력
-  if (profile.age) document.getElementById('inp-age').value = profile.age;
-  if (profile.height) document.getElementById('inp-height').value = profile.height;
-  if (profile.weight) document.getElementById('inp-weight').value = profile.weight;
-  if (profile.bodyfat) document.getElementById('inp-bodyfat').value = profile.bodyfat;
-  if (goals.targetWeight) document.getElementById('inp-target-weight').value = goals.targetWeight;
-  if (goals.targetBodyfat) document.getElementById('inp-target-bodyfat').value = goals.targetBodyfat;
-  if (goals.startDate) document.getElementById('inp-start-date').value = goals.startDate;
-
-  // 피커
-  const setPicker = (containerId, val) => {
-    const btn = document.querySelector(`#${containerId} [data-val="${val}"]`);
-    if (btn) btn.classList.add('active');
-  };
-  if (goals.strengthDays) setPicker('strength-days', goals.strengthDays);
-  if (goals.strengthMin) setPicker('strength-min', goals.strengthMin);
-  if (goals.cardioDays) setPicker('cardio-days', goals.cardioDays);
-  if (goals.cardioMin) setPicker('cardio-min', goals.cardioMin);
-
+function restoreProfile(){
+  const profile=loadData('profile');const goals=loadData('goals');if(!profile||!goals)return;
+  const gc=document.querySelector(`[data-group="gender"][data-value="${profile.gender}"]`);if(gc)gc.classList.add('active');
+  const bc=document.querySelector(`[data-group="bodyType"][data-value="${profile.bodyType}"]`);if(bc)bc.classList.add('active');
+  if(profile.age) document.getElementById('inp-age').value=profile.age;
+  if(profile.height) document.getElementById('inp-height').value=profile.height;
+  if(profile.weight) document.getElementById('inp-weight').value=profile.weight;
+  if(profile.bodyfat) document.getElementById('inp-bodyfat').value=profile.bodyfat;
+  if(goals.targetWeight) document.getElementById('inp-target-weight').value=goals.targetWeight;
+  if(goals.targetBodyfat) document.getElementById('inp-target-bodyfat').value=goals.targetBodyfat;
+  if(goals.startDate) document.getElementById('inp-start-date').value=goals.startDate;
+  const sp=(cid,val)=>{const b=document.querySelector(`#${cid} [data-val="${val}"]`);if(b)b.classList.add('active');};
+  if(goals.strengthDays) sp('strength-days',goals.strengthDays);
+  if(goals.strengthMin) sp('strength-min',goals.strengthMin);
+  if(goals.cardioDays) sp('cardio-days',goals.cardioDays);
+  if(goals.cardioMin) sp('cardio-min',goals.cardioMin);
   updateGoalPreview();
 }
 
-// ===== 시작일 기본값 =====
-function setDefaultDate() {
-  const el = document.getElementById('inp-start-date');
-  if (!el.value) el.value = todayStr();
-}
-
 // ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
-  initTabs();
-  initChoiceCards();
-  initPickers();
-  initGoalSave();
-  initTodayTab();
-  initRunningFilter();
-  initGoalManagement();
-  initSymptomListeners();
-  setDefaultDate();
-  restoreProfile();
-  updateHeaderCountdown();
-  renderTodayRecords();
-
-  // 러닝 탭이 초기 활성이 아니라도 데이터 준비
-  // (탭 클릭 시 렌더됨)
+document.addEventListener('DOMContentLoaded',()=>{
+  initTabs();initChoiceCards();initPickers();
+  initGoalSave();initTodayTab();
+  initRunningFilter();initGoalManagement();
+  document.getElementById('inp-start-date').value=todayStr();
+  restoreProfile();updateHeaderCountdown();renderTodayRecords();
 });

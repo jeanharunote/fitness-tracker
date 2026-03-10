@@ -947,6 +947,7 @@ const RUNNING_EVENTS = [
 function saveData(k,v){localStorage.setItem('ft_'+k,JSON.stringify(v));}
 function loadData(k){const d=localStorage.getItem('ft_'+k);return d?JSON.parse(d):null;}
 function todayStr(){return new Date().toISOString().slice(0,10);}
+function formatTime12h(t){if(!t)return t;const[h,m]=t.split(':').map(Number);const ampm=h<12?'오전':'오후';const h12=h===0?12:h>12?h-12:h;return `${ampm} ${h12}시${m?` ${m}분`:''}`;}
 function formatDate(s){const d=new Date(s);return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${['일','월','화','수','목','금','토'][d.getDay()]})`;}
 function getDDay(s){const t=new Date();t.setHours(0,0,0,0);const diff=Math.ceil((new Date(s)-t)/(864e5));if(diff<0)return{label:'종료',cls:'past'};if(diff===0)return{label:'D-DAY',cls:'soon'};if(diff<=30)return{label:`D-${diff}`,cls:'soon'};return{label:`D-${diff}`,cls:'future'};}
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
@@ -1361,18 +1362,17 @@ function initIntention(){
       updateIntentionPreview();
     });
   });
-  ['#intention-time .time-btn','#intention-place .time-btn'].forEach(sel=>{
-    document.querySelectorAll(sel).forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        btn.closest('.time-picker').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        updateIntentionPreview();
-      });
+  document.querySelectorAll('#intention-place .time-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      btn.closest('.time-picker').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      updateIntentionPreview();
     });
   });
+  document.getElementById('intention-time').addEventListener('change', updateIntentionPreview);
   document.getElementById('btn-save-intention').addEventListener('click',()=>{
     const days=Array.from(document.querySelectorAll('#intention-days .day-btn.active')).map(b=>b.dataset.val);
-    const time=document.querySelector('#intention-time .time-btn.active')?.dataset.val;
+    const time=document.getElementById('intention-time').value;
     const place=document.querySelector('#intention-place .time-btn.active')?.dataset.val;
     if(!days.length||!time||!place){showToast('요일, 시간, 장소를 모두 선택해주세요!');return;}
     saveData('intention',{days,time,place});
@@ -1383,12 +1383,12 @@ function initIntention(){
 
 function updateIntentionPreview(){
   const days=Array.from(document.querySelectorAll('#intention-days .day-btn.active')).map(b=>b.dataset.val);
-  const time=document.querySelector('#intention-time .time-btn.active')?.dataset.val;
+  const time=document.getElementById('intention-time').value;
   const place=document.querySelector('#intention-place .time-btn.active')?.dataset.val;
   const p=document.getElementById('intention-preview');
   if(!days.length&&!time&&!place){p.style.display='none';return;}
   const d=days.length?days.join('·')+'요일':'___';
-  const t=time||'___시';
+  const t=time?formatTime12h(time):'___시';
   const pl=place||'___';
   p.innerHTML=`🧠 <strong>"나는 매주 ${d} ${t}에 ${pl}에서 운동한다"</strong>`;
   p.style.display='block';
@@ -1401,7 +1401,7 @@ function restoreIntention(){
     const b=document.querySelector(`#intention-days [data-val="${d}"]`);
     if(b) b.classList.add('active');
   });
-  if(it.time){const b=document.querySelector(`#intention-time [data-val="${it.time}"]`);if(b)b.classList.add('active');}
+  if(it.time) document.getElementById('intention-time').value=it.time;
   if(it.place){const b=document.querySelector(`#intention-place [data-val="${it.place}"]`);if(b)b.classList.add('active');}
   updateIntentionPreview();
 }

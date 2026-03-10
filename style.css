@@ -203,6 +203,15 @@ body {
   box-shadow:0 0 12px rgba(0,255,136,0.15);
 }
 
+.time-input-wrap{display:flex;align-items:center;gap:6px;}
+.time-direct-input{
+  width:80px;padding:8px 10px;
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-size:14px;font-weight:700;font-family:inherit;
+  text-align:center;
+}
+.time-direct-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 8px rgba(0,255,136,0.15);}
+
 /* ===== GOAL PREVIEW ===== */
 .goal-preview{
   margin-top:14px;padding:14px 16px;

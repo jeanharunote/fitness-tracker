@@ -1019,9 +1019,9 @@ function initGoalSave(){
     const targetBodyfat=+document.getElementById('inp-target-bodyfat').value;
     const startDate=document.getElementById('inp-start-date').value;
     const strengthDays=+(document.querySelector('#strength-days .active')?.dataset.val||3);
-    const strengthMin=+(document.querySelector('#strength-min .active')?.dataset.val||60);
+    const strengthMin=+(document.getElementById('strength-min').value||60);
     const cardioDays=+(document.querySelector('#cardio-days .active')?.dataset.val||3);
-    const cardioMin=+(document.querySelector('#cardio-min .active')?.dataset.val||30);
+    const cardioMin=+(document.getElementById('cardio-min').value||30);
     if(!gender){showToast('성별을 선택해주세요!');return;}
     if(!bodyType){showToast('체질을 선택해주세요!');return;}
     if(!age||!height||!weight){showToast('나이, 키, 체중을 입력해주세요!');return;}
@@ -1770,9 +1770,9 @@ function restoreProfile(){
   if(goals.startDate) document.getElementById('inp-start-date').value=goals.startDate;
   const sp=(cid,val)=>{const b=document.querySelector(`#${cid} [data-val="${val}"]`);if(b)b.classList.add('active');};
   if(goals.strengthDays) sp('strength-days',goals.strengthDays);
-  if(goals.strengthMin) sp('strength-min',goals.strengthMin);
+  if(goals.strengthMin) document.getElementById('strength-min').value=goals.strengthMin;
   if(goals.cardioDays) sp('cardio-days',goals.cardioDays);
-  if(goals.cardioMin) sp('cardio-min',goals.cardioMin);
+  if(goals.cardioMin) document.getElementById('cardio-min').value=goals.cardioMin;
   updateGoalPreview();
 }
 

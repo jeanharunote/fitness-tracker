@@ -132,11 +132,9 @@
       </div>
       <div class="plan-row">
         <label>회당 시간?</label>
-        <div class="time-picker" id="strength-min">
-          <button class="time-btn" data-val="30">30분</button>
-          <button class="time-btn" data-val="45">45분</button>
-          <button class="time-btn" data-val="60">60분</button>
-          <button class="time-btn" data-val="90">90분</button>
+        <div class="time-input-wrap">
+          <input type="number" id="strength-min" class="time-direct-input" placeholder="60" min="10" max="180">
+          <span class="input-unit">분</span>
         </div>
       </div>
     </div>
@@ -157,11 +155,9 @@
       </div>
       <div class="plan-row">
         <label>회당 시간?</label>
-        <div class="time-picker" id="cardio-min">
-          <button class="time-btn" data-val="20">20분</button>
-          <button class="time-btn" data-val="30">30분</button>
-          <button class="time-btn" data-val="45">45분</button>
-          <button class="time-btn" data-val="60">60분</button>
+        <div class="time-input-wrap">
+          <input type="number" id="cardio-min" class="time-direct-input" placeholder="30" min="10" max="120">
+          <span class="input-unit">분</span>
         </div>
       </div>
     </div>

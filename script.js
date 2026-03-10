@@ -1010,6 +1010,7 @@ function initGoalSave(){
   document.getElementById('btn-save-goal').addEventListener('click',()=>{
     const gender=document.querySelector('[data-group="gender"].active')?.dataset.value;
     const bodyType=document.querySelector('[data-group="bodyType"].active')?.dataset.value;
+    const experience=document.querySelector('[data-group="experience"].active')?.dataset.value;
     const age=+document.getElementById('inp-age').value;
     const height=+document.getElementById('inp-height').value;
     const weight=+document.getElementById('inp-weight').value;
@@ -1026,7 +1027,7 @@ function initGoalSave(){
     if(!age||!height||!weight){showToast('나이, 키, 체중을 입력해주세요!');return;}
     if(!targetWeight){showToast('목표 체중을 입력해주세요!');return;}
     if(!startDate){showToast('시작일을 선택해주세요!');return;}
-    const profile={gender,bodyType,age,height,weight,bodyfat};
+    const profile={gender,bodyType,experience,age,height,weight,bodyfat};
     const goals={targetWeight,targetBodyfat,startDate,strengthDays,strengthMin,cardioDays,cardioMin};
     saveData('profile',profile);
     saveData('goals',goals);
@@ -1039,6 +1040,11 @@ function initGoalSave(){
     showToast('✨ 맞춤 플랜이 생성됐어요!');
     updateHeaderCountdown();
     setTimeout(()=>document.querySelector('[data-tab="plan"]').click(),500);
+  });
+  document.getElementById('btn-reset-all').addEventListener('click',()=>{
+    if(!confirm('모든 데이터를 초기화할까요?\n입력한 정보와 기록이 모두 삭제됩니다.')) return;
+    Object.keys(localStorage).filter(k=>k.startsWith('ft_')).forEach(k=>localStorage.removeItem(k));
+    location.reload();
   });
 }
 
@@ -1754,6 +1760,7 @@ function restoreProfile(){
   const profile=loadData('profile');const goals=loadData('goals');if(!profile||!goals)return;
   const gc=document.querySelector(`[data-group="gender"][data-value="${profile.gender}"]`);if(gc)gc.classList.add('active');
   const bc=document.querySelector(`[data-group="bodyType"][data-value="${profile.bodyType}"]`);if(bc)bc.classList.add('active');
+  const ec=document.querySelector(`[data-group="experience"][data-value="${profile.experience}"]`);if(ec)ec.classList.add('active');
   if(profile.age) document.getElementById('inp-age').value=profile.age;
   if(profile.height) document.getElementById('inp-height').value=profile.height;
   if(profile.weight) document.getElementById('inp-weight').value=profile.weight;

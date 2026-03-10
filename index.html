@@ -70,7 +70,7 @@
 
     <div class="card">
       <h3 class="card-title"><i class="fas fa-leaf"></i> 체질 / 신체 유형</h3>
-      <div class="choice-grid cols-2">
+      <div class="choice-grid cols-3">
         <div class="choice-card" data-group="bodyType" data-value="ecto">
           <i class="fas fa-feather"></i><span>마른 체형</span><small>살이 잘 안 찌는 편</small>
         </div>
@@ -80,7 +80,16 @@
         <div class="choice-card" data-group="bodyType" data-value="endo">
           <i class="fas fa-circle"></i><span>비만 체형</span><small>살이 잘 찌는 편</small>
         </div>
-        <div class="choice-card" data-group="bodyType" data-value="athlete">
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-trophy"></i> 운동 경험</h3>
+      <div class="choice-grid cols-2">
+        <div class="choice-card" data-group="experience" data-value="beginner">
+          <i class="fas fa-seedling"></i><span>초보자</span><small>운동을 거의 안 해온 편</small>
+        </div>
+        <div class="choice-card" data-group="experience" data-value="athlete">
           <i class="fas fa-trophy"></i><span>운동 경험자</span><small>꾸준히 운동해온 편</small>
         </div>
       </div>
@@ -204,6 +213,9 @@
 
     <button class="btn-generate" id="btn-save-goal">
       <i class="fas fa-wand-magic-sparkles"></i> 맞춤 운동+식단 플랜 생성하기
+    </button>
+    <button class="btn-reset" id="btn-reset-all">
+      <i class="fas fa-rotate-left"></i> 전체 초기화
     </button>
   </section>
 

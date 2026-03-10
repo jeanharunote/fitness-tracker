@@ -145,6 +145,7 @@ body {
 /* ===== CHOICE CARDS ===== */
 .choice-grid{display:grid;gap:10px;}
 .choice-grid.cols-2{grid-template-columns:1fr 1fr;}
+.choice-grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
 .choice-card{
   border:2px solid var(--border);border-radius:var(--radius-sm);
   padding:16px 10px;text-align:center;cursor:pointer;
@@ -221,6 +222,14 @@ body {
 .btn-generate:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,255,136,0.45);}
 .btn-generate:active{transform:translateY(0);}
 .btn-generate i{margin-right:8px;}
+.btn-reset{
+  width:100%;padding:12px;margin-top:10px;
+  background:transparent;color:var(--text-dim);
+  border:1px solid var(--border);border-radius:var(--radius);
+  font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+  transition:all 0.2s;
+}
+.btn-reset:hover{background:rgba(255,80,80,0.1);color:#ff6060;border-color:#ff6060;}
 
 /* ===== CALORIE CARD ===== */
 .calorie-summary-card{

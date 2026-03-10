@@ -157,6 +157,51 @@
       </div>
     </div>
 
+    <!-- 실행 의도 카드 -->
+    <div class="card neuro-card">
+      <h3 class="card-title"><i class="fas fa-brain"></i> 실행 의도 설정 <span class="neuro-badge">뇌과학</span></h3>
+      <div class="neuro-desc">📌 <strong>"언제, 어디서"</strong>를 구체적으로 정하면 실천율이 <strong>2~3배</strong> 높아져요 <span class="neuro-ref">(Gollwitzer, 1999)</span></div>
+      <div class="intention-form">
+        <div class="intention-row">
+          <label>운동 요일</label>
+          <div class="day-picker" id="intention-days">
+            <button class="day-btn" data-val="월">월</button>
+            <button class="day-btn" data-val="화">화</button>
+            <button class="day-btn" data-val="수">수</button>
+            <button class="day-btn" data-val="목">목</button>
+            <button class="day-btn" data-val="금">금</button>
+            <button class="day-btn" data-val="토">토</button>
+            <button class="day-btn" data-val="일">일</button>
+          </div>
+        </div>
+        <div class="intention-row">
+          <label>운동 시간</label>
+          <div class="time-picker" id="intention-time">
+            <button class="time-btn" data-val="06:00">오전 6시</button>
+            <button class="time-btn" data-val="07:00">오전 7시</button>
+            <button class="time-btn" data-val="08:00">오전 8시</button>
+            <button class="time-btn" data-val="12:00">점심</button>
+            <button class="time-btn" data-val="18:00">오후 6시</button>
+            <button class="time-btn" data-val="19:00">오후 7시</button>
+            <button class="time-btn" data-val="20:00">오후 8시</button>
+          </div>
+        </div>
+        <div class="intention-row">
+          <label>운동 장소</label>
+          <div class="time-picker" id="intention-place">
+            <button class="time-btn" data-val="헬스장">헬스장</button>
+            <button class="time-btn" data-val="집">집</button>
+            <button class="time-btn" data-val="공원">공원</button>
+            <button class="time-btn" data-val="회사 근처">회사 근처</button>
+          </div>
+        </div>
+      </div>
+      <div id="intention-preview" class="intention-preview" style="display:none;"></div>
+      <button class="btn-sm-save" id="btn-save-intention" style="margin-top:10px;width:100%;">
+        <i class="fas fa-check"></i> 실행 의도 저장
+      </button>
+    </div>
+
     <button class="btn-generate" id="btn-save-goal">
       <i class="fas fa-wand-magic-sparkles"></i> 맞춤 운동+식단 플랜 생성하기
     </button>
@@ -172,6 +217,34 @@
     </div>
 
     <div id="plan-content" style="display:none;">
+
+      <!-- 스트릭 + 체중 진행률 -->
+      <div class="neuro-row">
+        <div class="streak-card neuro-card">
+          <div class="streak-label"><i class="fas fa-fire"></i> 연속 운동</div>
+          <div class="streak-number" id="streak-count">0</div>
+          <div class="streak-sub" id="streak-sub">일 연속</div>
+          <div class="streak-tip" id="streak-tip"></div>
+        </div>
+        <div class="weight-progress-card neuro-card">
+          <div class="wp-label"><i class="fas fa-scale-balanced"></i> 목표 달성률</div>
+          <div class="wp-numbers" id="wp-numbers">-</div>
+          <div class="wp-bar-wrap"><div class="wp-bar-fill" id="wp-bar" style="width:0%"></div></div>
+          <div class="wp-pct" id="wp-pct">0%</div>
+        </div>
+      </div>
+
+      <!-- 체중 기록 -->
+      <div class="card neuro-card">
+        <h3 class="card-title"><i class="fas fa-weight-scale"></i> 체중 기록 <span class="neuro-badge">목표 기울기</span></h3>
+        <div class="neuro-desc">📈 진행 상황을 눈으로 보면 <strong>목표에 가까울수록 동기가 강해져요</strong> <span class="neuro-ref">(Hull, 1932)</span></div>
+        <div class="weight-input-row">
+          <input type="number" id="inp-log-weight" placeholder="오늘 체중 (kg)" step="0.1" min="30" max="200">
+          <button class="btn-sm-save" id="btn-log-weight"><i class="fas fa-plus"></i> 기록</button>
+        </div>
+        <div id="weight-log-list" class="weight-log-list"></div>
+      </div>
+
       <!-- 칼로리 카드 -->
       <div class="card calorie-summary-card">
         <h3 class="card-title"><i class="fas fa-fire-flame-curved"></i> 일일 칼로리 목표</h3>

@@ -1085,6 +1085,9 @@ function renderPlanTab(){
   document.getElementById('plan-bmr').textContent=plan.bmr?.toLocaleString()||'-';
   document.getElementById('plan-target-cal').textContent=plan.targetCal?.toLocaleString()||'-';
   document.getElementById('plan-protein').textContent=plan.proteinTarget||'-';
+  renderStreak();
+  renderWeightLog();
+  renderWeightProgress();
   renderWeekSelector();
   renderWeekDayGrid();
   renderDayWorkout(selectedDayIndex);
@@ -1342,6 +1345,143 @@ window.selectDietStage=function(idx){
   const plan=loadData('plan');
   renderDietPlan(idx, plan?.targetCal);
 };
+
+// ===== 실행 의도 =====
+function initIntention(){
+  // 다중 선택 가능한 요일 피커
+  document.querySelectorAll('#intention-days .day-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      btn.classList.toggle('active');
+      updateIntentionPreview();
+    });
+  });
+  ['#intention-time .time-btn','#intention-place .time-btn'].forEach(sel=>{
+    document.querySelectorAll(sel).forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        btn.closest('.time-picker').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        updateIntentionPreview();
+      });
+    });
+  });
+  document.getElementById('btn-save-intention').addEventListener('click',()=>{
+    const days=Array.from(document.querySelectorAll('#intention-days .day-btn.active')).map(b=>b.dataset.val);
+    const time=document.querySelector('#intention-time .time-btn.active')?.dataset.val;
+    const place=document.querySelector('#intention-place .time-btn.active')?.dataset.val;
+    if(!days.length||!time||!place){showToast('요일, 시간, 장소를 모두 선택해주세요!');return;}
+    saveData('intention',{days,time,place});
+    showToast('✅ 실행 의도 저장! 약속을 지켜봐요 💪');
+  });
+  restoreIntention();
+}
+
+function updateIntentionPreview(){
+  const days=Array.from(document.querySelectorAll('#intention-days .day-btn.active')).map(b=>b.dataset.val);
+  const time=document.querySelector('#intention-time .time-btn.active')?.dataset.val;
+  const place=document.querySelector('#intention-place .time-btn.active')?.dataset.val;
+  const p=document.getElementById('intention-preview');
+  if(!days.length&&!time&&!place){p.style.display='none';return;}
+  const d=days.length?days.join('·')+'요일':'___';
+  const t=time||'___시';
+  const pl=place||'___';
+  p.innerHTML=`🧠 <strong>"나는 매주 ${d} ${t}에 ${pl}에서 운동한다"</strong>`;
+  p.style.display='block';
+}
+
+function restoreIntention(){
+  const it=loadData('intention');
+  if(!it) return;
+  it.days?.forEach(d=>{
+    const b=document.querySelector(`#intention-days [data-val="${d}"]`);
+    if(b) b.classList.add('active');
+  });
+  if(it.time){const b=document.querySelector(`#intention-time [data-val="${it.time}"]`);if(b)b.classList.add('active');}
+  if(it.place){const b=document.querySelector(`#intention-place [data-val="${it.place}"]`);if(b)b.classList.add('active');}
+  updateIntentionPreview();
+}
+
+// ===== 스트릭 계산 =====
+function calcStreak(){
+  const checks=loadData('exercise-checks')||{};
+  let streak=0;
+  const today=new Date();
+  for(let i=0;i<90;i++){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    const dateStr=d.toISOString().slice(0,10);
+    // 해당 날짜에 체크된 운동이 하나라도 있으면 운동한 날
+    const dayChecks=Object.entries(checks).filter(([k])=>k.startsWith(dateStr));
+    const hasDone=dayChecks.some(([,v])=>Object.values(v).some(Boolean));
+    if(hasDone) streak++;
+    else if(i>0) break; // 오늘은 아직 안 했을 수 있으므로 i===0은 pass
+  }
+  return streak;
+}
+
+function renderStreak(){
+  const streak=calcStreak();
+  const el=document.getElementById('streak-count');
+  const sub=document.getElementById('streak-sub');
+  const tip=document.getElementById('streak-tip');
+  if(!el) return;
+  el.textContent=streak;
+  sub.textContent='일 연속';
+  if(streak===0) tip.textContent='오늘 첫 운동을 시작해봐요!';
+  else if(streak<3) tip.textContent='잘 시작했어요! 계속 이어가요 🔥';
+  else if(streak<7) tip.textContent='습관이 만들어지고 있어요! 💪';
+  else tip.textContent=`${streak}일 연속! 멈추면 아깝잖아요 🏆`;
+}
+
+// ===== 체중 기록 =====
+function initWeightLog(){
+  const btn=document.getElementById('btn-log-weight');
+  if(!btn) return;
+  btn.addEventListener('click',()=>{
+    const w=+document.getElementById('inp-log-weight').value;
+    if(!w||w<30||w>300){showToast('체중을 올바르게 입력해주세요!');return;}
+    const logs=loadData('weight-logs')||[];
+    logs.unshift({date:todayStr(),weight:w});
+    saveData('weight-logs',logs.slice(0,30)); // 최근 30개만 보관
+    document.getElementById('inp-log-weight').value='';
+    renderWeightLog();
+    renderWeightProgress();
+    showToast('체중 기록됐어요! 📊');
+  });
+  renderWeightLog();
+  renderWeightProgress();
+}
+
+function renderWeightLog(){
+  const logs=loadData('weight-logs')||[];
+  const container=document.getElementById('weight-log-list');
+  if(!container) return;
+  if(!logs.length){container.innerHTML='<div class="weight-log-empty">아직 기록이 없어요. 오늘 체중을 기록해보세요!</div>';return;}
+  container.innerHTML=logs.slice(0,7).map((l,i)=>{
+    const prev=logs[i+1];
+    const diff=prev?+(l.weight-prev.weight).toFixed(1):null;
+    const diffHtml=diff!==null?`<span class="wl-diff ${diff<0?'down':diff>0?'up':''}">${diff>0?'+':''}${diff}kg</span>`:'';
+    return `<div class="wl-row"><span class="wl-date">${l.date.slice(5).replace('-','/')}</span><span class="wl-weight">${l.weight}kg</span>${diffHtml}</div>`;
+  }).join('');
+}
+
+function renderWeightProgress(){
+  const goals=loadData('goals');
+  const logs=loadData('weight-logs')||[];
+  const profile=loadData('profile');
+  const el=document.getElementById('wp-numbers');
+  const bar=document.getElementById('wp-bar');
+  const pct=document.getElementById('wp-pct');
+  if(!el) return;
+  const startW=profile?.weight;
+  const targetW=goals?.targetWeight;
+  const currentW=logs[0]?.weight||startW;
+  if(!startW||!targetW||!currentW){el.textContent='목표 체중을 설정해주세요';return;}
+  const total=Math.abs(startW-targetW);
+  const done=Math.abs(startW-currentW);
+  const progress=total>0?Math.min(Math.round(done/total*100),100):0;
+  el.textContent=`${currentW}kg → ${targetW}kg`;
+  bar.style.width=`${progress}%`;
+  pct.textContent=`${progress}% 달성`;
+}
 
 // ===== 오늘기록 탭 =====
 function initTodayTab(){
@@ -1633,6 +1773,8 @@ function restoreProfile(){
 document.addEventListener('DOMContentLoaded',()=>{
   initTabs();initChoiceCards();initPickers();
   initGoalSave();
+  initIntention();
+  initWeightLog();
   restoreProfile();updateHeaderCountdown();
   // 저장된 플랜이 있으면 운동플랜 탭으로 자동 이동
   if(loadData('plan')){

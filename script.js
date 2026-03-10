@@ -1132,8 +1132,26 @@ function getActiveSchedule(){
   return profile?.gender==='male' ? FOUR_WEEK_SCHEDULE_MALE[selectedWeek] : FOUR_WEEK_SCHEDULE[selectedWeek];
 }
 
+// 실행 의도 요일에 맞춰 운동 배치
+function getPersonalizedSchedule(){
+  const base=getActiveSchedule();
+  const intention=loadData('intention');
+  if(!intention?.days?.length) return base;
+  const dayOrder=['월','화','수','목','금','토','일'];
+  const selectedDays=new Set(intention.days);
+  const workouts=base.filter(d=>d.exercises.length>0);
+  let wi=0;
+  return dayOrder.map((dayName,i)=>{
+    const baseDay=base[i];
+    if(selectedDays.has(dayName)&&wi<workouts.length){
+      return {...workouts[wi++],day:dayName,label:baseDay.label};
+    }
+    return {day:dayName,label:baseDay.label,emoji:'😴',type:'휴식',badge:'회복',exercises:[],abs:false};
+  });
+}
+
 function renderWeekDayGrid(){
-  const schedule=getActiveSchedule();
+  const schedule=getPersonalizedSchedule();
   const grid=document.getElementById('week-day-grid');
   grid.innerHTML=schedule.map((d,i)=>`
     <button class="week-day-btn${i===selectedDayIndex?' active':''}" onclick="selectDay(${i})">
@@ -1150,7 +1168,7 @@ window.selectDay=function(i){
 };
 
 function renderDayWorkout(i){
-  const sched=getActiveSchedule()[i];
+  const sched=getPersonalizedSchedule()[i];
   const container=document.getElementById('day-workout-view');
   const savedChecks=loadData('exercise-checks')||{};
   const dateKey=todayStr();
@@ -1377,6 +1395,10 @@ function initIntention(){
     if(!days.length||!time||!place){showToast('요일, 시간, 장소를 모두 선택해주세요!');return;}
     saveData('intention',{days,time,place});
     showToast('✅ 실행 의도 저장! 약속을 지켜봐요 💪');
+    // 운동플랜 요일 그리드 갱신
+    if(document.getElementById('plan-content').style.display!=='none'){
+      renderWeekDayGrid();renderDayWorkout(selectedDayIndex);
+    }
   });
   restoreIntention();
 }

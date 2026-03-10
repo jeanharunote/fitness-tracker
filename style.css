@@ -827,6 +827,10 @@ body {
 .intention-form{display:flex;flex-direction:column;gap:12px;}
 .intention-row{display:flex;flex-direction:column;gap:6px;}
 .intention-row label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);}
+.per-day-times-grid{display:flex;flex-direction:column;gap:8px;margin-top:4px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid var(--border);}
+.per-day-time-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.per-day-label{font-size:13px;font-weight:700;color:var(--text-sub);min-width:42px;}
+
 .intention-preview{
   margin-top:10px;padding:11px 14px;border-radius:10px;
   background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);

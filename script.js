@@ -1372,11 +1372,31 @@ window.selectDietStage=function(idx){
 };
 
 // ===== 실행 의도 =====
+function renderPerDayTimes(savedTimes){
+  const days=Array.from(document.querySelectorAll('#intention-days .day-btn.active')).map(b=>b.dataset.val);
+  const wrap=document.getElementById('per-day-times');
+  if(!days.length){wrap.innerHTML='';return;}
+  wrap.innerHTML=`<div class="per-day-times-grid">`+days.map(d=>{
+    const val=(savedTimes&&savedTimes[d])||'20:00';
+    return `<div class="per-day-time-row">
+      <span class="per-day-label">${d}요일</span>
+      <input type="time" class="time-direct-input per-day-input" data-day="${d}" value="${val}">
+    </div>`;
+  }).join('')+`</div>`;
+  wrap.querySelectorAll('.per-day-input').forEach(el=>el.addEventListener('change',()=>updateIntentionPreview()));
+}
+
+function getPerDayTimes(){
+  const times={};
+  document.querySelectorAll('.per-day-input').forEach(el=>{times[el.dataset.day]=el.value;});
+  return times;
+}
+
 function initIntention(){
-  // 다중 선택 가능한 요일 피커
   document.querySelectorAll('#intention-days .day-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
       btn.classList.toggle('active');
+      renderPerDayTimes();
       updateIntentionPreview();
     });
   });
@@ -1387,15 +1407,14 @@ function initIntention(){
       updateIntentionPreview();
     });
   });
-  document.getElementById('intention-time').addEventListener('change', updateIntentionPreview);
   document.getElementById('btn-save-intention').addEventListener('click',()=>{
     const days=Array.from(document.querySelectorAll('#intention-days .day-btn.active')).map(b=>b.dataset.val);
-    const time=document.getElementById('intention-time').value;
+    const times=getPerDayTimes();
     const place=document.querySelector('#intention-place .time-btn.active')?.dataset.val;
-    if(!days.length||!time||!place){showToast('요일, 시간, 장소를 모두 선택해주세요!');return;}
-    saveData('intention',{days,time,place});
+    if(!days.length){showToast('운동 요일을 선택해주세요!');return;}
+    if(!place){showToast('운동 장소를 선택해주세요!');return;}
+    saveData('intention',{days,times,place});
     showToast('✅ 실행 의도 저장! 약속을 지켜봐요 💪');
-    // 운동플랜 요일 그리드 갱신
     if(document.getElementById('plan-content').style.display!=='none'){
       renderWeekDayGrid();renderDayWorkout(selectedDayIndex);
     }
@@ -1405,14 +1424,13 @@ function initIntention(){
 
 function updateIntentionPreview(){
   const days=Array.from(document.querySelectorAll('#intention-days .day-btn.active')).map(b=>b.dataset.val);
-  const time=document.getElementById('intention-time').value;
+  const times=getPerDayTimes();
   const place=document.querySelector('#intention-place .time-btn.active')?.dataset.val;
   const p=document.getElementById('intention-preview');
-  if(!days.length&&!time&&!place){p.style.display='none';return;}
-  const d=days.length?days.join('·')+'요일':'___';
-  const t=time?formatTime12h(time):'___시';
+  if(!days.length){p.style.display='none';return;}
   const pl=place||'___';
-  p.innerHTML=`🧠 <strong>"나는 매주 ${d} ${t}에 ${pl}에서 운동한다"</strong>`;
+  const lines=days.map(d=>`${d}요일 ${times[d]?formatTime12h(times[d]):'___시'}`).join(' · ');
+  p.innerHTML=`🧠 <strong>"나는 매주 ${lines}에 ${pl}에서 운동한다"</strong>`;
   p.style.display='block';
 }
 
@@ -1423,7 +1441,7 @@ function restoreIntention(){
     const b=document.querySelector(`#intention-days [data-val="${d}"]`);
     if(b) b.classList.add('active');
   });
-  if(it.time) document.getElementById('intention-time').value=it.time;
+  renderPerDayTimes(it.times||(it.time?Object.fromEntries((it.days||[]).map(d=>[d,it.time])):{}));
   if(it.place){const b=document.querySelector(`#intention-place [data-val="${it.place}"]`);if(b)b.classList.add('active');}
   updateIntentionPreview();
 }

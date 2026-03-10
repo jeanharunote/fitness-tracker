@@ -822,9 +822,6 @@ function initTabs(){
       btn.classList.add('active');
       document.getElementById(tab).classList.add('active');
       if(tab==='plan') renderPlanTab();
-      if(tab==='running') renderRunningEvents('all');
-      if(tab==='progress') renderProgress();
-      if(tab==='today') renderTodayRecords();
     });
   });
   document.querySelectorAll('.sub-tab-btn').forEach(btn=>{
@@ -1450,8 +1447,7 @@ function restoreProfile(){
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded',()=>{
   initTabs();initChoiceCards();initPickers();
-  initGoalSave();initTodayTab();
-  initRunningFilter();initGoalManagement();
+  initGoalSave();
   document.getElementById('inp-start-date').value=todayStr();
-  restoreProfile();updateHeaderCountdown();renderTodayRecords();
+  restoreProfile();updateHeaderCountdown();
 });
